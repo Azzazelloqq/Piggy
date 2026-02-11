@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using Code.Game.Loading.Window;
 using Disposable;
 using UnityEngine;
 
@@ -11,9 +12,15 @@ public struct UIContext
     public RectTransform MainUIParent { get; private set; }
     
     [field: SerializeField]
-    public RectTransform OvveridesParent { get; private set; }
+    public RectTransform OverlaysParent { get; private set; }
     
     [field: SerializeField]
     public RectTransform HUDParent { get; private set; }
+    
+    [field: SerializeField]
+    public RectTransform DynamicObjectsParent { get; private set; }
+
+    [field: SerializeField]
+    public LoadingWindowViewBase LoadingWindowPrefab { get; private set; }
 }
 }

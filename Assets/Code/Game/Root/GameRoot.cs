@@ -1,5 +1,6 @@
 using System;
 using Code.Game.Bootstrap.State;
+using Code.Game.Loading;
 using Code.Game.MainMenu.States;
 using Disposable;
 using Piggy.Code.StateMachine;
@@ -18,12 +19,18 @@ public class GameRoot : MonoBehaviourDisposable
     {
         var bootstrapState = new BootstrapState();
         _stateMachine.Register(bootstrapState);
+        _stateMachine.Register(new LoadingState());
         _stateMachine.Register(new MainMenuState());
 
         try
         {
             await _stateMachine.ChangeStateAsync<BootstrapState, BootstrapStateContext>(
                 new BootstrapStateContext(_rootContext.UIContext),
+                cancellationToken: destroyCancellationToken);
+
+            var loadingStateContext = new LoadingStateContext(_rootContext.UIContext);
+            await _stateMachine.ChangeStateAsync<LoadingState, LoadingStateContext>(
+                loadingStateContext,
                 cancellationToken: destroyCancellationToken);
 
             var mainMenuStateContext = new MainMenuStateContext(_rootContext.UIContext);

@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.azzazello.config": "https://github.com/Azzazelloqq/Config.git",
+    "com.azzazello.disposable": "https://github.com/Azzazelloqq/Disposable.git",
+    "com.azzazello.lightdi": "https://github.com/Azzazelloqq/LightDI.git",
+    "com.azzazello.localsavesystem": "https://github.com/Azzazelloqq/LocalSave.git",
+    "com.azzazello.logger": "https://github.com/Azzazelloqq/InGameLogger.git",
+    "com.azzazello.mvp": "https://github.com/Azzazelloqq/MVP-pattern.git",
+    "com.azzazello.resourceloader": "https://github.com/Azzazelloqq/ResourceLoader.git",
+    "com.azzazello.tickhandler": "https://github.com/Azzazelloqq/TickHandler.git",
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.unity.ai.navigation": "2.0.9",
     "com.unity.collab-proxy": "2.10.2",
     "com.unity.ide.rider": "3.0.38",

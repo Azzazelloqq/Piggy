@@ -1,5 +1,88 @@
 {
   "dependencies": {
+    "com.azzazello.config": {
+      "version": "https://github.com/Azzazelloqq/Config.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "3c440ae95d1f2e07046c205f1f7edb31a73e8152"
+    },
+    "com.azzazello.disposable": {
+      "version": "https://github.com/Azzazelloqq/Disposable.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "7430aa4e92db0a12e0023da5b055880e2afe183b"
+    },
+    "com.azzazello.lightdi": {
+      "version": "https://github.com/Azzazelloqq/LightDI.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "b5d0f92210cd530534b434b8094cde3f68252da2"
+    },
+    "com.azzazello.localsavesystem": {
+      "version": "https://github.com/Azzazelloqq/LocalSave.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "7e8123e31fbc09f9058904d6b3180131d6182e7a"
+    },
+    "com.azzazello.logger": {
+      "version": "https://github.com/Azzazelloqq/InGameLogger.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "2d4dbfd7512b1b29d3ca7c3e43298a3f236a0489"
+    },
+    "com.azzazello.mvp": {
+      "version": "https://github.com/Azzazelloqq/MVP-pattern.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.azzazello.disposable": "https://github.com/Azzazelloqq/Disposable.git#main"
+      },
+      "hash": "c099ed0e755f7ad733949a9611cc894036ad2aff"
+    },
+    "com.azzazello.resourceloader": {
+      "version": "https://github.com/Azzazelloqq/ResourceLoader.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.addressables": "1.21.20"
+      },
+      "hash": "8100bd189b6a5617dc6c2a2840129f7abf39f360"
+    },
+    "com.azzazello.tickhandler": {
+      "version": "https://github.com/Azzazelloqq/TickHandler.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a9baf356016accb677741977ce0ae3ea399de2e6"
+    },
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "73a63b7f672b88f7e9992f6917eb458a8cbb6fa9"
+    },
+    "com.unity.addressables": {
+      "version": "2.7.4",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.profiling.core": "1.0.2",
+        "com.unity.test-framework": "1.4.5",
+        "com.unity.modules.assetbundle": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.scriptablebuildpipeline": "2.4.3",
+        "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.9",
       "depth": 0,
@@ -94,6 +177,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.profiling.core": {
+      "version": "1.0.3",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.render-pipelines.core": {
       "version": "17.3.0",
       "depth": 1,
@@ -125,6 +215,16 @@
       "dependencies": {
         "com.unity.render-pipelines.core": "17.0.3"
       }
+    },
+    "com.unity.scriptablebuildpipeline": {
+      "version": "2.4.3",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.4.5",
+        "com.unity.modules.assetbundle": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
     },
     "com.unity.searcher": {
       "version": "4.9.4",

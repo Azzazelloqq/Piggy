@@ -1,0 +1,6 @@
+namespace Piggy.Code.StateMachine
+{
+    public interface ISubState
+    {
+    }
+}

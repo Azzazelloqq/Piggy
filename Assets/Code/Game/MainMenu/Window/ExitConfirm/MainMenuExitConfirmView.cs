@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +13,12 @@ public sealed class MainMenuExitConfirmView : MainMenuExitConfirmViewBase
     [Header("Panel")]
     [SerializeField]
     private RectTransform _panel;
+
+    [Header("Content Animation")]
+    [SerializeField]
+    private RectTransform[] _animatedElements;
+
+    private RectTransform _resolvedPanel;
 
     [SerializeField]
     private CanvasGroup _canvasGroup;
@@ -24,7 +33,11 @@ public sealed class MainMenuExitConfirmView : MainMenuExitConfirmViewBase
     [SerializeField]
     private Button _cancelButton;
 
-    public override RectTransform Panel => _panel;
+    private CancellationTokenSource _subscriptionsCts;
+    private UniTask _subscriptionsTask;
+
+    public override RectTransform Panel => _resolvedPanel ??= ResolvePanel();
+    public override IReadOnlyList<RectTransform> AnimatedElements => _animatedElements ?? Array.Empty<RectTransform>();
 
     public override void SetVisible(bool isVisible)
     {
@@ -47,49 +60,112 @@ public sealed class MainMenuExitConfirmView : MainMenuExitConfirmViewBase
     protected override void OnInitialize()
     {
         base.OnInitialize();
-        SubscribeOnEvents();
+        SubscribeOnEvents(default);
     }
 
     protected override async ValueTask OnInitializeAsync(CancellationToken token)
     {
         await base.OnInitializeAsync(token);
-        SubscribeOnEvents();
+        SubscribeOnEvents(token);
     }
 
     protected override void OnDispose()
     {
         base.OnDispose();
-        UnsubscribeOnEvents();
+        StopSubscriptionsImmediate();
     }
 
     protected override async ValueTask OnDisposeAsync(CancellationToken token)
     {
         await base.OnDisposeAsync(token);
-        UnsubscribeOnEvents();
+        await StopSubscriptionsAsync();
     }
 
-    private void SubscribeOnEvents()
+    private void SubscribeOnEvents(CancellationToken token)
     {
-        _confirmButton.onClick.AddListener(HandleConfirmClicked);
+        StopSubscriptionsImmediate();
 
-        _cancelButton.onClick.AddListener(HandleCancelClicked);
+        _subscriptionsCts = CancellationTokenSource.CreateLinkedTokenSource(
+            token,
+            this.GetCancellationTokenOnDestroy());
+        _subscriptionsTask = RunButtonSubscriptionsAsync(_subscriptionsCts.Token);
     }
 
-    private void UnsubscribeOnEvents()
+    private void StopSubscriptionsImmediate()
     {
-        _confirmButton.onClick.RemoveListener(HandleConfirmClicked);
+        if (_subscriptionsCts == null)
+        {
+            return;
+        }
 
-        _cancelButton.onClick.RemoveListener(HandleCancelClicked);
+        _subscriptionsCts.Cancel();
+        _subscriptionsCts.Dispose();
+        _subscriptionsCts = null;
+        _subscriptionsTask = default;
     }
 
-    private void HandleConfirmClicked()
+    private async UniTask StopSubscriptionsAsync()
     {
-        RaiseConfirmClicked();
+        if (_subscriptionsCts == null)
+        {
+            return;
+        }
+
+        _subscriptionsCts.Cancel();
+        _subscriptionsCts.Dispose();
+        _subscriptionsCts = null;
+
+        await _subscriptionsTask;
+        _subscriptionsTask = default;
     }
 
-    private void HandleCancelClicked()
+    private async UniTask RunButtonSubscriptionsAsync(CancellationToken token)
     {
-        RaiseCancelClicked();
+        await UniTask.WhenAll(
+            WaitForClicksAsync(_confirmButton, RaiseConfirmClicked, token),
+            WaitForClicksAsync(_cancelButton, RaiseCancelClicked, token));
+    }
+
+    private static async UniTask WaitForClicksAsync(Button button, Action onClick, CancellationToken token)
+    {
+        try
+        {
+            await foreach (var _ in button.OnClickAsAsyncEnumerable(token))
+            {
+                onClick?.Invoke();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private RectTransform ResolvePanel()
+    {
+        var root = (RectTransform)transform;
+        if (_panel == null || _panel == root)
+        {
+            return root;
+        }
+
+        return IsOffscreen(root) ? root : _panel;
+    }
+
+    private static bool IsOffscreen(RectTransform rect)
+    {
+        var parent = rect.parent as RectTransform;
+        if (parent == null)
+        {
+            return false;
+        }
+
+        var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(parent, rect);
+        var parentRect = parent.rect;
+
+        return bounds.max.x < parentRect.xMin
+            || bounds.min.x > parentRect.xMax
+            || bounds.max.y < parentRect.yMin
+            || bounds.min.y > parentRect.yMax;
     }
 }
 }

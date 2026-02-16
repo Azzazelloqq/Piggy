@@ -6,8 +6,7 @@ using MVP;
 namespace Code.Game.MainMenu.Window
 {
     public abstract class MainMenuSettingsPresenterBase
-        : Presenter<MainMenuSettingsViewBase, MainMenuSettingsModelBase>,
-            IMainMenuPanelPresenter
+        : Presenter<MainMenuSettingsViewBase, MainMenuSettingsModelBase>
     {
         public event Action BackRequested;
         public event Action ApplyRequested;

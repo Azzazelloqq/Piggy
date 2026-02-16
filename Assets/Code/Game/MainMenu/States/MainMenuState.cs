@@ -2,6 +2,8 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Code.Game.MainMenu.Window;
+using InGameLogger;
+using LightDI.Runtime;
 using Piggy.Code.StateMachine;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -10,14 +12,16 @@ namespace Code.Game.MainMenu.States
 {
     public sealed class MainMenuState : GameState
     {
+        private readonly IInGameLogger _logger;
         private MainMenuPresenter _menuPresenter;
 
         private MainMenuViewBase _menuView;
 
         private CancellationToken _stateToken;
 
-        public MainMenuState()
+        public MainMenuState([Inject] IInGameLogger logger)
         {
+            _logger = logger;
             SubStateMachine.Register(new MenuSubState());
             SubStateMachine.Register(new SettingsSubState());
             SubStateMachine.Register(new ExitConfirmSubState());
@@ -82,19 +86,19 @@ namespace Code.Game.MainMenu.States
             Debug.Log("MainMenuState: Play requested.");
         }
 
-        private void HandleSettingsRequested()
+        private async void HandleSettingsRequested()
         {
-            TransitionToScreenAsync(MainMenuScreen.Settings).Forget();
+            await TransitionToScreenAsync(MainMenuScreen.Settings);
         }
 
-        private void HandleExitRequested()
+        private async void HandleExitRequested()
         {
-            TransitionToScreenAsync(MainMenuScreen.ExitConfirm).Forget();
+            await TransitionToScreenAsync(MainMenuScreen.ExitConfirm);
         }
 
-        private void HandleSettingsBackRequested()
+        private async void HandleSettingsBackRequested()
         {
-            TransitionToScreenAsync(MainMenuScreen.Menu).Forget();
+            await TransitionToScreenAsync(MainMenuScreen.Menu);
         }
 
         private void HandleSettingsApplyRequested()
@@ -107,9 +111,9 @@ namespace Code.Game.MainMenu.States
             Application.Quit();
         }
 
-        private void HandleExitCanceled()
+        private async void HandleExitCanceled()
         {
-            TransitionToScreenAsync(MainMenuScreen.Menu).Forget();
+            await TransitionToScreenAsync(MainMenuScreen.Menu);
         }
 
         private async UniTask TransitionToScreenAsync(MainMenuScreen targetScreen)
@@ -123,6 +127,10 @@ namespace Code.Game.MainMenu.States
             }
             catch (OperationCanceledException)
             {
+            }
+            catch (Exception exception)
+            {
+                _logger.LogException(exception);
             }
         }
 
@@ -150,21 +158,21 @@ namespace Code.Game.MainMenu.States
 
         private UniTask ChangeSubStateAsync(MainMenuScreen screen, CancellationToken token)
         {
-            return screen switch
+            switch (screen)
             {
-                MainMenuScreen.Menu => SubStateMachine.ChangeStateAsync<MenuSubState, MainMenuSubStateContext>(
-                    new MainMenuSubStateContext(screen),
-                    cancellationToken: token),
-                MainMenuScreen.Settings => SubStateMachine.ChangeStateAsync<SettingsSubState, MainMenuSubStateContext>(
-                    new MainMenuSubStateContext(screen),
-                    cancellationToken: token),
-                MainMenuScreen.ExitConfirm => SubStateMachine.ChangeStateAsync<ExitConfirmSubState, MainMenuSubStateContext>(
-                    new MainMenuSubStateContext(screen),
-                    cancellationToken: token),
-                _ => SubStateMachine.ChangeStateAsync<MenuSubState, MainMenuSubStateContext>(
-                    new MainMenuSubStateContext(MainMenuScreen.Menu),
-                    cancellationToken: token)
-            };
+                case MainMenuScreen.Menu:
+                    return SubStateMachine.ChangeStateAsync<MenuSubState, MainMenuSubStateContext>(
+                        new MainMenuSubStateContext(screen), cancellationToken: token);
+                case MainMenuScreen.Settings:
+                    return SubStateMachine.ChangeStateAsync<SettingsSubState, MainMenuSubStateContext>(
+                        new MainMenuSubStateContext(screen), cancellationToken: token);
+                case MainMenuScreen.ExitConfirm:
+                    return SubStateMachine.ChangeStateAsync<ExitConfirmSubState, MainMenuSubStateContext>(
+                        new MainMenuSubStateContext(screen), cancellationToken: token);
+                default:
+                    return SubStateMachine.ChangeStateAsync<MenuSubState, MainMenuSubStateContext>(
+                        new MainMenuSubStateContext(MainMenuScreen.Menu), cancellationToken: token);
+            }
         }
 
     }

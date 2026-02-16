@@ -21,9 +21,6 @@ public class UIContext : MonoBehaviour
     public RectTransform DynamicObjectsParent { get; private set; }
 
     [field: SerializeField]
-    public LoadingWindowViewBase LoadingWindowPrefab { get; private set; }
-
-    [field: SerializeField]
     public MainMenuViewBase MainMenuPrefab { get; private set; }
 }
 }

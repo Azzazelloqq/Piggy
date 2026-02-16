@@ -12,6 +12,8 @@ namespace Code.Game.Loading
 {
 public sealed class LoadingState : GameState
 {
+    private const float FakeLoadingDelaySeconds = 1.5f;
+
     private readonly IResourceLoader _resourceLoader;
     private LoadingWindowPresenterBase _presenter;
     private LoadingWindowViewBase _viewInstance;
@@ -74,7 +76,16 @@ public sealed class LoadingState : GameState
             }
             else
             {
-                await UniTask.Yield(token);
+                var elapsed = 0f;
+                while (elapsed < FakeLoadingDelaySeconds)
+                {
+                    var progress = Mathf.Clamp01(elapsed / FakeLoadingDelaySeconds);
+                    _presenter.ReportProgress(progress);
+                    await UniTask.Yield(PlayerLoopTiming.Update, token);
+                    elapsed += Time.unscaledDeltaTime;
+                }
+
+                _presenter.ReportProgress(1f);
             }
         }
         catch (Exception)
@@ -86,11 +97,10 @@ public sealed class LoadingState : GameState
 
     protected override UniTask OnExitAsync(CancellationToken cancellationToken)
     {
-        BeginHideAndCleanup(cancellationToken);
-        return UniTask.CompletedTask;
+        return HideAndCleanupAsync(cancellationToken);
     }
 
-    private void BeginHideAndCleanup(CancellationToken cancellationToken)
+    private UniTask HideAndCleanupAsync(CancellationToken cancellationToken)
     {
         var presenter = _presenter;
         var view = _viewInstance;
@@ -99,10 +109,10 @@ public sealed class LoadingState : GameState
 
         if (presenter == null && view == null)
         {
-            return;
+            return UniTask.CompletedTask;
         }
 
-        _ = HideAndCleanupAsync(presenter, view, cancellationToken);
+        return HideAndCleanupAsync(presenter, view, cancellationToken);
     }
 
     private async UniTask HideAndCleanupAsync(

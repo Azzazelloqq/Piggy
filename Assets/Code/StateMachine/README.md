@@ -97,12 +97,22 @@ Switch sub-state using the same method (routing is internal):
 await stateMachine.ChangeStateAsync<GameplayCombatState, SceneContext>(context, cancellationToken: ct);
 ```
 
+For crossfade-style transitions, you can overlap exit/enter:
+
+```csharp
+await stateMachine.ChangeStateAsync<MenuState, SceneContext>(
+    context,
+    transitionMode: StateTransitionMode.OverlapExitEnter,
+    cancellationToken: ct);
+```
+
 ## Notes
 
 - `EnterAsync/ExitAsync` are internal; override `OnEnterAsync/OnExitAsync` in your states.
 - Any state can have sub-states (every `GameState` has `SubStateMachine`).
 - Sub-states are identified by `ISubState` (via `GameSubState`) and must be registered in the parent state's `SubStateMachine`.
 - Do not call `ChangeStateAsync` on the same `StateMachine` inside its own `OnEnterAsync/OnExitAsync`.
+- When using `OverlapExitEnter`, `OnExitAsync` and `OnEnterAsync` may run concurrently. Keep them thread-safe and avoid shared mutable state.
 - To re-enter the same state on demand, use `force = true`:
 
 ```csharp

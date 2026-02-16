@@ -42,6 +42,8 @@ public class GameRoot : MonoBehaviourDisposable
 
         var dispatcherObject = new GameObject();
         var unityDispatcherBehaviour = dispatcherObject.AddComponent<UnityDispatcherBehaviour>();
+        unityDispatcherBehaviour.name = $"[{unityDispatcherBehaviour.GetType().Name}]";
+        DontDestroyOnLoad(unityDispatcherBehaviour);
 
         var unityTickHandler = new UnityTickHandler(unityDispatcherBehaviour);
         _gameDiContainer.RegisterAsSingleton<ITickHandler>(unityTickHandler);
@@ -51,8 +53,9 @@ public class GameRoot : MonoBehaviourDisposable
         
         var loadingState = LoadingStateFactory.CreateLoadingState();
         _stateMachine.Register(loadingState);
-        
-        _stateMachine.Register(new MainMenuState());
+
+        var mainMenuState = MainMenuStateFactory.CreateMainMenuState();
+        _stateMachine.Register(mainMenuState);
 
         _gameDiContainer.RegisterAsSingleton(_stateMachine);
 
@@ -74,14 +77,19 @@ public class GameRoot : MonoBehaviourDisposable
                 cancellationToken: destroyCancellationToken);
 
             var mainMenuSettingsView = ResourceIdsContainer.UIMainMenu.MainMenuSettingsView;
-            
+
             var mainMenuStateContext = new MainMenuStateContext(_rootContext.UIContext, mainMenuSettingsView);
             await _stateMachine.ChangeStateAsync<MainMenuState, MainMenuStateContext>(
                 mainMenuStateContext,
+                transitionMode: StateTransitionMode.OverlapExitEnter,
                 cancellationToken: destroyCancellationToken);
         }
         catch (OperationCanceledException)
         {
+        }
+        catch (Exception exception)
+        {
+            _inGameLogger.LogException(exception);
         }
     }
 

@@ -150,7 +150,7 @@ GameObject:
   - component: {fileID: 7173377333570822988}
   - component: {fileID: 8171625331031451595}
   m_Layer: 5
-  m_Name: BackButton
+  m_Name: ExitButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -308,11 +308,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 743c0b1d9532045408cb74448f7e5c35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Code.Game.MainMenu.Window.MainMenuExitConfirmView
-  _panel: {fileID: 5542415998541546437}
+  _panel: {fileID: 1304390573991275905}
+  _animatedElements:
+  - {fileID: 1655967753545319245}
+  - {fileID: 3632735114364409992}
+  - {fileID: 9004810790796770082}
   _canvasGroup: {fileID: 7650248574447714376}
   _disableGameObjectOnHide: 1
-  _confirmButton: {fileID: 910512253921731366}
-  _cancelButton: {fileID: 8171625331031451595}
+  _confirmButton: {fileID: 8171625331031451595}
+  _cancelButton: {fileID: 910512253921731366}
 --- !u!225 &7650248574447714376
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -754,7 +758,7 @@ GameObject:
   - component: {fileID: 8627031620572721756}
   - component: {fileID: 910512253921731366}
   m_Layer: 5
-  m_Name: ConfirmButton
+  m_Name: BackButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -6,8 +6,7 @@ using MVP;
 namespace Code.Game.MainMenu.Window
 {
 public abstract class MainMenuExitConfirmPresenterBase
-    : Presenter<MainMenuExitConfirmViewBase, MainMenuExitConfirmModelBase>,
-        IMainMenuPanelPresenter
+    : Presenter<MainMenuExitConfirmViewBase, MainMenuExitConfirmModelBase>
 {
     public event Action Confirmed;
     public event Action Canceled;

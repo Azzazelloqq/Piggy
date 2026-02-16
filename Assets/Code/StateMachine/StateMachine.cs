@@ -97,6 +97,7 @@ public sealed class StateMachine : IStateMachine
     public UniTask ChangeStateAsync<TState, TSceneContext>(
         TSceneContext sceneContext = default,
         bool force = false,
+        StateTransitionMode transitionMode = StateTransitionMode.Sequential,
         CancellationToken cancellationToken = default)
         where TState : GameState 
         where TSceneContext : struct, IGameStateContext
@@ -114,7 +115,12 @@ public sealed class StateMachine : IStateMachine
                 throw new InvalidOperationException($"Sub-state not registered: {typeof(TState).Name}");
             }
 
-            return subStateMachine.ChangeStateAsyncInternal(subState, sceneContext, force, cancellationToken);
+            return subStateMachine.ChangeStateAsyncInternal(
+                subState,
+                sceneContext,
+                force,
+                transitionMode,
+                cancellationToken);
         }
 
         if (!_states.TryGetValue(typeof(TState), out var nextState))
@@ -122,7 +128,7 @@ public sealed class StateMachine : IStateMachine
             throw new InvalidOperationException($"State not registered: {typeof(TState).Name}");
         }
 
-        return ChangeStateAsyncInternal(nextState, sceneContext, force, cancellationToken);
+        return ChangeStateAsyncInternal(nextState, sceneContext, force, transitionMode, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -146,6 +152,7 @@ public sealed class StateMachine : IStateMachine
         GameState nextState,
         T gameStateContext,
         bool force,
+        StateTransitionMode transitionMode,
         CancellationToken cancellationToken) where T : struct, IGameStateContext
     {
         return RunTransitionAsync(async ct =>
@@ -156,17 +163,40 @@ public sealed class StateMachine : IStateMachine
                 return;
             }
 
-            if (_currentState != null)
+            var previousState = _currentState;
+            if (previousState != null)
             {
                 await ShutdownSubStatesAsync(ct);
-                await ((IGameState)_currentState).ExitAsync(ct);
+            }
+
+            var useOverlap = transitionMode == StateTransitionMode.OverlapExitEnter
+                && previousState != null
+                && !ReferenceEquals(previousState, nextState);
+
+            if (useOverlap)
+            {
+                var exitTask = ((IGameState)previousState).ExitAsync(ct);
+
+                _currentState = null;
+                ct.ThrowIfCancellationRequested();
+
+                var enterTask = ((IGameState)nextState).EnterAsync(gameStateContext, ct);
+
+                await UniTask.WhenAll(exitTask, enterTask);
+                _currentState = nextState;
+                return;
+            }
+
+            if (previousState != null)
+            {
+                await ((IGameState)previousState).ExitAsync(ct);
             }
 
             _currentState = null;
             ct.ThrowIfCancellationRequested();
 
             await ((IGameState)nextState).EnterAsync(gameStateContext, ct);
-            
+
             _currentState = nextState;
         }, cancellationToken);
     }
@@ -178,7 +208,7 @@ public sealed class StateMachine : IStateMachine
         Func<CancellationToken, UniTask> transition,
         CancellationToken cancellationToken)
     {
-        if (_transitionOwner.Value == this)
+        if (_isTransitioning && _transitionOwner.Value == this)
         {
             throw new InvalidOperationException("Re-entrant transitions are not allowed.");
         }

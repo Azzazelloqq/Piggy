@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +13,10 @@ namespace Code.Game.MainMenu.Window
         [Header("Panel")]
         [SerializeField]
         private RectTransform _panel;
+
+        [Header("Content Animation")]
+        [SerializeField]
+        private RectTransform[] _animatedElements;
 
         [SerializeField]
         private CanvasGroup _canvasGroup;
@@ -24,7 +31,11 @@ namespace Code.Game.MainMenu.Window
         [SerializeField]
         private Button _backButton;
 
+        private CancellationTokenSource _subscriptionsCts;
+        private UniTask _subscriptionsTask;
+
         public override RectTransform Panel => _panel;
+        public override IReadOnlyList<RectTransform> AnimatedElements => _animatedElements ?? Array.Empty<RectTransform>();
 
         public override void SetVisible(bool isVisible)
         {
@@ -46,48 +57,83 @@ namespace Code.Game.MainMenu.Window
 
         protected override void OnInitialize()
         {
-            SubscribeOnEvents();
+            SubscribeOnEvents(default);
         }
 
         protected override ValueTask OnInitializeAsync(CancellationToken token)
         {
-            SubscribeOnEvents();
+            SubscribeOnEvents(token);
             
             return default;
         }
 
         protected override void OnDispose()
         {
-            UnsubscribeOnEvents();
+            StopSubscriptionsImmediate();
         }
 
-        protected override ValueTask OnDisposeAsync(CancellationToken token)
+        protected override async ValueTask OnDisposeAsync(CancellationToken token)
         {
-            UnsubscribeOnEvents();
-
-            return default;
+            await StopSubscriptionsAsync();
         }
 
-        private void SubscribeOnEvents()
+        private void SubscribeOnEvents(CancellationToken token)
         {
-            _applyButton.onClick.AddListener(HandleApplyClicked);
-            _backButton.onClick.AddListener(HandleBackClicked);
+            StopSubscriptionsImmediate();
+
+            _subscriptionsCts = CancellationTokenSource.CreateLinkedTokenSource(
+                token,
+                this.GetCancellationTokenOnDestroy());
+            _subscriptionsTask = RunButtonSubscriptionsAsync(_subscriptionsCts.Token);
         }
 
-        private void UnsubscribeOnEvents()
+        private void StopSubscriptionsImmediate()
         {
-            _applyButton.onClick.RemoveListener(HandleApplyClicked);
-            _backButton.onClick.RemoveListener(HandleBackClicked);
+            if (_subscriptionsCts == null)
+            {
+                return;
+            }
+
+            _subscriptionsCts.Cancel();
+            _subscriptionsCts.Dispose();
+            _subscriptionsCts = null;
+            _subscriptionsTask = default;
         }
 
-        private void HandleApplyClicked()
+        private async UniTask StopSubscriptionsAsync()
         {
-            RaiseApplyClicked();
+            if (_subscriptionsCts == null)
+            {
+                return;
+            }
+
+            _subscriptionsCts.Cancel();
+            _subscriptionsCts.Dispose();
+            _subscriptionsCts = null;
+
+            await _subscriptionsTask;
+            _subscriptionsTask = default;
         }
 
-        private void HandleBackClicked()
+        private async UniTask RunButtonSubscriptionsAsync(CancellationToken token)
         {
-            RaiseBackClicked();
+            await UniTask.WhenAll(
+                WaitForClicksAsync(_applyButton, RaiseApplyClicked, token),
+                WaitForClicksAsync(_backButton, RaiseBackClicked, token));
+        }
+
+        private static async UniTask WaitForClicksAsync(Button button, Action onClick, CancellationToken token)
+        {
+            try
+            {
+                await foreach (var _ in button.OnClickAsAsyncEnumerable(token))
+                {
+                    onClick?.Invoke();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
         }
 
     }

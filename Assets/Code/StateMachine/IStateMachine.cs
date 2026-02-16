@@ -49,9 +49,14 @@ public interface IStateMachine
     /// If <typeparamref name="TState"/> implements <see cref="ISubState"/> and this instance is
     /// a parent machine, the transition is routed to the current state's sub-state machine.
     /// </summary>
+    /// <param name="sceneContext">Transition context payload.</param>
+    /// <param name="force">Whether to re-enter the same state instance.</param>
+    /// <param name="transitionMode">Controls whether exit/enter overlap.</param>
+    /// <param name="cancellationToken">Cancellation token for the transition.</param>
     UniTask ChangeStateAsync<TState, TSceneContext>(
         TSceneContext sceneContext = default,
         bool force = false,
+        StateTransitionMode transitionMode = StateTransitionMode.Sequential,
         CancellationToken cancellationToken = default)
         where TState : GameState
         where TSceneContext : struct, IGameStateContext;

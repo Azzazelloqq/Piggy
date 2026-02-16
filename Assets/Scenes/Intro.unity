@@ -645,6 +645,7 @@ GameObject:
   - component: {fileID: 1560468964}
   - component: {fileID: 1560468965}
   - component: {fileID: 1560468967}
+  - component: {fileID: 1560468968}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -691,9 +692,7 @@ MonoBehaviour:
   <OverlaysParent>k__BackingField: {fileID: 1878074055}
   <HUDParent>k__BackingField: {fileID: 1931724328}
   <DynamicObjectsParent>k__BackingField: {fileID: 1340725772}
-  <LoadingWindowPrefab>k__BackingField: {fileID: 0}
   <MainMenuPrefab>k__BackingField: {fileID: 3828251607925861180, guid: c32eb0c92199cdf4f90478d9847a9ee2, type: 3}
-  <MainMenuLayoutConfig>k__BackingField: {fileID: 0}
 --- !u!114 &1560468965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -748,6 +747,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1560468962}
   m_CullTransparentMesh: 1
+--- !u!114 &1560468968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1560468962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &1878074054
 GameObject:
   m_ObjectHideFlags: 0

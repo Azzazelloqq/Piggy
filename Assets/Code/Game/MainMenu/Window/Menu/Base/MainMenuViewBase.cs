@@ -1,15 +1,12 @@
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-using DG.Tweening;
+using System.Collections.Generic;
 using MVP;
 using UnityEngine;
 
 namespace Code.Game.MainMenu.Window
 {
 public abstract class MainMenuViewBase
-    : ViewMonoBehaviour<MainMenuPresenterBase>,
-        IMainMenuPanelView
+    : ViewMonoBehaviour<MainMenuPresenterBase>
 {
     [Serializable]
     public sealed class LayoutData
@@ -19,124 +16,31 @@ public abstract class MainMenuViewBase
         private float _transitionDuration = 0.35f;
 
         [SerializeField]
-        private Ease _showEase = Ease.OutCubic;
+        private float _showOvershoot = 1.2f;
 
         [SerializeField]
-        private Ease _hideEase = Ease.InCubic;
+        private float _offscreenPadding = 60f;
 
         [SerializeField]
         private bool _useUnscaledTime = true;
 
-        [Header("Menu Positions")]
+        [Header("Shown Positions")]
         [SerializeField]
         private Vector2 _menuShown;
 
         [SerializeField]
-        private Vector2 _menuHiddenRight;
-
-        [SerializeField]
-        private Vector2 _menuHiddenUp;
-
-        [Header("Settings Positions")]
-        [SerializeField]
         private Vector2 _settingsShown;
 
         [SerializeField]
-        private Vector2 _settingsHiddenLeft;
-
-        [Header("Exit Confirm Positions")]
-        [SerializeField]
         private Vector2 _exitShown;
 
-        [SerializeField]
-        private Vector2 _exitHiddenBottom;
-
         public float TransitionDuration => _transitionDuration;
-        public Ease ShowEase => _showEase;
-        public Ease HideEase => _hideEase;
+        public float ShowOvershoot => _showOvershoot;
+        public float OffscreenPadding => _offscreenPadding;
         public bool UseUnscaledTime => _useUnscaledTime;
-
-        public Vector2 GetMenuPosition(MainMenuPosition position)
-        {
-            return position switch
-            {
-                MainMenuPosition.Shown => _menuShown,
-                MainMenuPosition.HiddenRight => _menuHiddenRight,
-                MainMenuPosition.HiddenUp => _menuHiddenUp,
-                _ => _menuShown
-            };
-        }
-
-        public Vector2 GetSettingsPosition(MainMenuSettingsPosition position)
-        {
-            return position switch
-            {
-                MainMenuSettingsPosition.Shown => _settingsShown,
-                MainMenuSettingsPosition.HiddenLeft => _settingsHiddenLeft,
-                _ => _settingsShown
-            };
-        }
-
-        public Vector2 GetExitPosition(MainMenuExitConfirmPosition position)
-        {
-            return position switch
-            {
-                MainMenuExitConfirmPosition.Shown => _exitShown,
-                MainMenuExitConfirmPosition.HiddenBottom => _exitHiddenBottom,
-                _ => _exitShown
-            };
-        }
-
-        public void SetMenuPosition(MainMenuPosition position, Vector2 value)
-        {
-            switch (position)
-            {
-                case MainMenuPosition.Shown:
-                    _menuShown = value;
-                    break;
-                case MainMenuPosition.HiddenRight:
-                    _menuHiddenRight = value;
-                    break;
-                case MainMenuPosition.HiddenUp:
-                    _menuHiddenUp = value;
-                    break;
-                default:
-                    _menuShown = value;
-                    break;
-            }
-        }
-
-        public void SetSettingsPosition(MainMenuSettingsPosition position, Vector2 value)
-        {
-            switch (position)
-            {
-                case MainMenuSettingsPosition.Shown:
-                    _settingsShown = value;
-                    break;
-                case MainMenuSettingsPosition.HiddenLeft:
-                    _settingsHiddenLeft = value;
-                    break;
-                default:
-                    _settingsShown = value;
-                    break;
-            }
-        }
-
-        public void SetExitPosition(MainMenuExitConfirmPosition position, Vector2 value)
-        {
-            switch (position)
-            {
-                case MainMenuExitConfirmPosition.Shown:
-                    _exitShown = value;
-                    break;
-                case MainMenuExitConfirmPosition.HiddenBottom:
-                    _exitHiddenBottom = value;
-                    break;
-                default:
-                    _exitShown = value;
-                    break;
-            }
-        }
+        public Vector2 MenuShown => _menuShown;
+        public Vector2 SettingsShown => _settingsShown;
+        public Vector2 ExitShown => _exitShown;
     }
 
     public event Action PlayClicked;
@@ -145,6 +49,7 @@ public abstract class MainMenuViewBase
 
     public abstract RectTransform Panel { get; }
     public abstract LayoutData Layout { get; }
+    public abstract IReadOnlyList<RectTransform> AnimatedElements { get; }
     public abstract void SetVisible(bool isVisible);
     public abstract void SetInteractable(bool isInteractable);
     internal abstract MainMenuSettingsViewBase SettingsView { get; }

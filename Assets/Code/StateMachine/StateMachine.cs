@@ -5,28 +5,45 @@ using Cysharp.Threading.Tasks;
 
 namespace Piggy.Code.StateMachine
 {
-public sealed class StateMachine
-{
+/// <summary>
+/// Default implementation of <see cref="IStateMachine"/> with support for sub-states.
+/// </summary>
+public sealed class StateMachine : IStateMachine
+{    
+    /// <summary>
+    /// Gets the currently active top-level state, or null when idle.
+    /// </summary>
+    public GameState CurrentState => _currentState;
+
+    /// <summary>
+    /// Gets the currently active sub-state, or null when none.
+    /// </summary>
+    public GameState CurrentSubState => _currentState == null
+        ? null
+        : GetSubStateMachine(_currentState).CurrentState;
+
+    /// <summary>
+    /// Gets a value indicating whether a transition is in progress.
+    /// </summary>
+    public bool IsTransitioning => _isTransitioning;
+
     private static readonly AsyncLocal<StateMachine> _transitionOwner = new();
     private readonly Dictionary<Type, GameState> _states = new();
     private readonly SemaphoreSlim _transitionGate = new(1, 1);
     private readonly bool _isSubStateMachine;
     private GameState _currentState;
     private bool _isTransitioning;
-
+    
+    /// <summary>
+    /// Creates a new state machine.
+    /// </summary>
+    /// <param name="isSubStateMachine">Whether this instance is used as a sub-state machine.</param>
     public StateMachine(bool isSubStateMachine = false)
     {
         _isSubStateMachine = isSubStateMachine;
     }
-
-    public GameState CurrentState => _currentState;
-
-    public GameState CurrentSubState => _currentState == null
-        ? null
-        : GetSubStateMachine(_currentState).CurrentState;
-
-    public bool IsTransitioning => _isTransitioning;
-
+    
+    /// <inheritdoc />
     public void Register(GameState state)
     {
         if (state == null)
@@ -41,6 +58,7 @@ public sealed class StateMachine
         }
     }
 
+    /// <inheritdoc />
     public bool TryGetState<TState>(out TState state) where TState : GameState
     {
         if (_states.TryGetValue(typeof(TState), out var stored))
@@ -53,6 +71,7 @@ public sealed class StateMachine
         return false;
     }
 
+    /// <inheritdoc />
     public bool TryGetSubStateMachine(out StateMachine subStateMachine)
     {
         if (_currentState != null)
@@ -65,6 +84,7 @@ public sealed class StateMachine
         return false;
     }
 
+    /// <inheritdoc />
     public async UniTask ShutdownSubStatesAsync(CancellationToken cancellationToken = default)
     {
         if (TryGetSubStateMachine(out var subStateMachine))
@@ -73,6 +93,7 @@ public sealed class StateMachine
         }
     }
 
+    /// <inheritdoc />
     public UniTask ChangeStateAsync<TState, TSceneContext>(
         TSceneContext sceneContext = default,
         bool force = false,
@@ -104,6 +125,7 @@ public sealed class StateMachine
         return ChangeStateAsyncInternal(nextState, sceneContext, force, cancellationToken);
     }
 
+    /// <inheritdoc />
     public UniTask ShutdownAsync(CancellationToken cancellationToken = default)
     {
         return RunTransitionAsync(async ct =>
@@ -149,6 +171,9 @@ public sealed class StateMachine
         }, cancellationToken);
     }
 
+    /// <summary>
+    /// Runs a transition under a gate to prevent concurrent or re-entrant transitions.
+    /// </summary>
     private async UniTask RunTransitionAsync(
         Func<CancellationToken, UniTask> transition,
         CancellationToken cancellationToken)
@@ -174,6 +199,9 @@ public sealed class StateMachine
         }
     }
 
+    /// <summary>
+    /// Gets the sub-state machine for the specified state.
+    /// </summary>
     private static StateMachine GetSubStateMachine(GameState state)
     {
         return ((IGameState)state).SubStateMachine;

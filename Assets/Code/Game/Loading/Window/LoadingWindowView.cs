@@ -1,5 +1,7 @@
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,14 +21,22 @@ public sealed class LoadingWindowView : LoadingWindowViewBase
     [SerializeField]
     private float _fadeDuration = 0.0f;
 
+    [SerializeField]
+    private Ease _fadeInEase = Ease.OutCubic;
+
+    [SerializeField]
+    private Ease _fadeOutEase = Ease.InCubic;
+
+    [SerializeField]
+    private bool _useUnscaledTime = true;
+
+    private Tween _fadeTween;
+
     public override void SetVisible(bool isVisible)
     {
-        if (_canvasGroup != null)
-        {
-            _canvasGroup.alpha = isVisible ? 1f : 0f;
-            _canvasGroup.interactable = isVisible;
-            _canvasGroup.blocksRaycasts = isVisible;
-        }
+        _canvasGroup.alpha = isVisible ? 1f : 0f;
+        _canvasGroup.interactable = isVisible;
+        _canvasGroup.blocksRaycasts = isVisible;
 
         if (_disableGameObjectOnHide)
         {
@@ -36,15 +46,12 @@ public sealed class LoadingWindowView : LoadingWindowViewBase
 
     public override void SetProgress(float progress)
     {
-        if (_progressBar != null)
-        {
-            _progressBar.value = Mathf.Clamp01(progress);
-        }
+        _progressBar.value = Mathf.Clamp01(progress);
     }
 
     public override async UniTask ShowAsync(CancellationToken token)
     {
-        if (_canvasGroup == null || _fadeDuration <= 0f)
+        if (_fadeDuration <= 0f)
         {
             SetVisible(true);
             return;
@@ -59,12 +66,12 @@ public sealed class LoadingWindowView : LoadingWindowViewBase
         _canvasGroup.interactable = true;
         _canvasGroup.blocksRaycasts = true;
 
-        await FadeAsync(0f, 1f, token);
+        await FadeAsync(0f, 1f, _fadeInEase, token);
     }
 
     public override async UniTask HideAsync(CancellationToken token)
     {
-        if (_canvasGroup == null || _fadeDuration <= 0f)
+        if (_fadeDuration <= 0f)
         {
             SetVisible(false);
             return;
@@ -73,7 +80,7 @@ public sealed class LoadingWindowView : LoadingWindowViewBase
         _canvasGroup.interactable = false;
         _canvasGroup.blocksRaycasts = false;
 
-        await FadeAsync(_canvasGroup.alpha, 0f, token);
+        await FadeAsync(_canvasGroup.alpha, 0f, _fadeOutEase, token);
 
         if (_disableGameObjectOnHide)
         {
@@ -81,7 +88,28 @@ public sealed class LoadingWindowView : LoadingWindowViewBase
         }
     }
 
-    private async UniTask FadeAsync(float from, float to, CancellationToken token)
+    protected override void OnInitialize()
+    {
+    }
+
+    protected override ValueTask OnInitializeAsync(CancellationToken token)
+    {
+        return default;
+    }
+
+    protected override void OnDispose()
+    {
+        KillFadeTween();
+    }
+
+    protected override ValueTask OnDisposeAsync(CancellationToken token)
+    {
+        KillFadeTween();
+        
+        return default;
+    }
+
+    private async UniTask FadeAsync(float from, float to, Ease ease, CancellationToken token)
     {
         if (_fadeDuration <= 0f)
         {
@@ -89,19 +117,35 @@ public sealed class LoadingWindowView : LoadingWindowViewBase
             return;
         }
 
-        var time = 0f;
+        KillFadeTween();
         _canvasGroup.alpha = from;
 
-        while (time < _fadeDuration)
+        _fadeTween = _canvasGroup.DOFade(to, _fadeDuration)
+            .SetEase(ease)
+            .SetUpdate(_useUnscaledTime);
+
+        using (token.Register(() => _fadeTween.Kill(false)))
         {
-            token.ThrowIfCancellationRequested();
-            time += Time.unscaledDeltaTime;
-            var t = Mathf.Clamp01(time / _fadeDuration);
-            _canvasGroup.alpha = Mathf.Lerp(from, to, t);
-            await UniTask.Yield(PlayerLoopTiming.Update, token);
+            await _fadeTween.AsyncWaitForCompletion();
         }
 
-        _canvasGroup.alpha = to;
+        if (token.IsCancellationRequested)
+        {
+            token.ThrowIfCancellationRequested();
+        }
+
+        _fadeTween = null;
+    }
+
+    private void KillFadeTween()
+    {
+        if (_fadeTween == null)
+        {
+            return;
+        }
+
+        _fadeTween.Kill(false);
+        _fadeTween = null;
     }
 }
 }

@@ -8,9 +8,9 @@ namespace Code.Game.Bootstrap.State
     {
         protected override async UniTask OnEnterAsync<TSceneContext>(
             TSceneContext gameStateContext,
-            CancellationToken cancellationToken)
+            CancellationToken token)
         {
-            await base.OnEnterAsync(gameStateContext, cancellationToken);
+            await base.OnEnterAsync(gameStateContext, token);
             
             if (gameStateContext is not BootstrapStateContext bootstrapStateContext)
             {

@@ -22,23 +22,5 @@ public abstract class LoadingWindowPresenterBase
     public abstract void ReportProgress(float progress);
     public abstract void BeginSteps(int totalSteps);
     public abstract void CompleteStep();
-
-    protected override void OnInitialize()
-    {
-    }
-
-    protected override ValueTask OnInitializeAsync(CancellationToken token)
-    {
-        return default;
-    }
-
-    protected override void OnDispose()
-    {
-    }
-
-    protected override ValueTask OnDisposeAsync(CancellationToken token)
-    {
-        return default;
-    }
 }
 }

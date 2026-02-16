@@ -57,10 +57,13 @@ public sealed class LoadingWindowPresenter : LoadingWindowPresenterBase
         view.SetVisible(model.IsVisible);
     }
 
-    protected override ValueTask OnInitializeAsync(CancellationToken token)
+    protected override async ValueTask OnInitializeAsync(CancellationToken token)
     {
-        OnInitialize();
-        return default;
+        model.ProgressChanged += HandleProgressChanged;
+        model.VisibilityChanged += HandleVisibilityChanged;
+
+        view.SetProgress(model.Progress);
+        view.SetVisible(model.IsVisible);
     }
 
     protected override void OnDispose()
@@ -69,8 +72,11 @@ public sealed class LoadingWindowPresenter : LoadingWindowPresenterBase
         model.VisibilityChanged -= HandleVisibilityChanged;
     }
 
-    protected override ValueTask OnDisposeAsync(CancellationToken token)
+    protected override  ValueTask OnDisposeAsync(CancellationToken token)
     {
+        model.ProgressChanged -= HandleProgressChanged;
+        model.VisibilityChanged -= HandleVisibilityChanged;
+
         return default;
     }
 

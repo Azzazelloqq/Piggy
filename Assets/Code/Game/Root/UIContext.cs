@@ -1,12 +1,12 @@
 using System;
 using Code.Game.Loading.Window;
-using Disposable;
+using Code.Game.MainMenu.Window;
 using UnityEngine;
 
 namespace Code.Game.Root
 {
 [Serializable]
-public struct UIContext
+public class UIContext : MonoBehaviour
 {
     [field: SerializeField]
     public RectTransform MainUIParent { get; private set; }
@@ -22,5 +22,8 @@ public struct UIContext
 
     [field: SerializeField]
     public LoadingWindowViewBase LoadingWindowPrefab { get; private set; }
+
+    [field: SerializeField]
+    public MainMenuViewBase MainMenuPrefab { get; private set; }
 }
 }

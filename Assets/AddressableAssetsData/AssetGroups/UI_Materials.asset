@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: UI_Materials
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: UI_Materials
+  m_GUID: cd0a8860a21b0324e8acaf1e31c65acc
+  m_SerializeEntries:
+  - m_GUID: 4ee0c27c6f1347a42b3879553fa9e6a7
+    m_Address: MainMenuTitle
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6444f4a8dbc50024ca412ec3defa9b22
+    m_Address: ExitConfirmButton
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6c2642c351e24fc1b1cc3f32e5b24db9
+    m_Address: PaperRoughButtonBackground
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8fd31b64f2f8a21488e33dac49abe0f3
+    m_Address: MainMenuButton
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9244987dbf6df4044bb81d0dd28ca779
+    m_Address: SettingsButton
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aa89bd851b396b947baa3a2b24076c6a
+    m_Address: MainMenuGradient
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b52700a001e86fa428c90d3487a6b6cc
+    m_Address: SettingsBackground
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cfd6e68b3715fab42b1f51bae3b03877
+    m_Address: ExitConfirmPopup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3b805069efce30647bbeb32318c28347, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: dc87b3fc2f46b524a8136c07dc45075c, type: 2}
+    - {fileID: 11400000, guid: 97735f66547d91c4a9951d81cc8f8eab, type: 2}

@@ -6,11 +6,6 @@ namespace Code.Game.Loading.Window
 {
 public sealed class LoadingWindowModel : LoadingWindowModelBase
 {
-    private float _manualProgress;
-    private bool _isVisible;
-    private int _totalSteps;
-    private int _completedSteps;
-
     public override float Progress => _totalSteps > 0
         ? Mathf.Clamp01((float)_completedSteps / _totalSteps)
         : _manualProgress;
@@ -18,6 +13,11 @@ public sealed class LoadingWindowModel : LoadingWindowModelBase
     public override bool IsVisible => _isVisible;
     public override int TotalSteps => _totalSteps;
     public override int CompletedSteps => _completedSteps;
+    
+    private float _manualProgress;
+    private bool _isVisible;
+    private int _totalSteps;
+    private int _completedSteps;
 
     public override void ReportProgress(float progress)
     {
@@ -66,7 +66,11 @@ public sealed class LoadingWindowModel : LoadingWindowModelBase
 
     protected override ValueTask OnInitializeAsync(CancellationToken token)
     {
-        OnInitialize();
+        _manualProgress = 0f;
+        _isVisible = false;
+        _totalSteps = 0;
+        _completedSteps = 0;
+        
         return default;
     }
 

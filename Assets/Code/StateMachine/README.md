@@ -82,11 +82,11 @@ public sealed class GameplayState : GameState
     }
 }
 
-public sealed class GameplayIdleState : GameState, ISubState
+public sealed class GameplayIdleState : GameSubState
 {
 }
 
-public sealed class GameplayCombatState : GameState, ISubState
+public sealed class GameplayCombatState : GameSubState
 {
 }
 ```
@@ -101,7 +101,7 @@ await stateMachine.ChangeStateAsync<GameplayCombatState, SceneContext>(context, 
 
 - `EnterAsync/ExitAsync` are internal; override `OnEnterAsync/OnExitAsync` in your states.
 - Any state can have sub-states (every `GameState` has `SubStateMachine`).
-- Sub-states are identified by `ISubState` and must be registered in the parent state's `SubStateMachine`.
+- Sub-states are identified by `ISubState` (via `GameSubState`) and must be registered in the parent state's `SubStateMachine`.
 - Do not call `ChangeStateAsync` on the same `StateMachine` inside its own `OnEnterAsync/OnExitAsync`.
 - To re-enter the same state on demand, use `force = true`:
 

@@ -29,23 +29,5 @@ public abstract class LoadingWindowModelBase : Model
     {
         VisibilityChanged?.Invoke(isVisible);
     }
-
-    protected override void OnInitialize()
-    {
-    }
-
-    protected override ValueTask OnInitializeAsync(CancellationToken token)
-    {
-        return default;
-    }
-
-    protected override void OnDispose()
-    {
-    }
-
-    protected override ValueTask OnDisposeAsync(CancellationToken token)
-    {
-        return default;
-    }
 }
 }

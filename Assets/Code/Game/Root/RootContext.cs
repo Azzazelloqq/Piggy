@@ -1,9 +1,10 @@
-﻿using Disposable;
+﻿using System;
 using UnityEngine;
 
 namespace Code.Game.Root
 {
-public class RootContext : MonoBehaviourDisposable
+[Serializable]
+public struct RootContext
 {
     [field: SerializeField]
     public UIContext UIContext { get; private set; }

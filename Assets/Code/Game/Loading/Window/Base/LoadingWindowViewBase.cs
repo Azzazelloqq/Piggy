@@ -21,23 +21,5 @@ public abstract class LoadingWindowViewBase : ViewMonoBehaviour<LoadingWindowPre
         SetVisible(false);
         return UniTask.CompletedTask;
     }
-
-    protected override void OnInitialize()
-    {
-    }
-
-    protected override ValueTask OnInitializeAsync(CancellationToken token)
-    {
-        return default;
-    }
-
-    protected override void OnDispose()
-    {
-    }
-
-    protected override ValueTask OnDisposeAsync(CancellationToken token)
-    {
-        return default;
-    }
 }
 }

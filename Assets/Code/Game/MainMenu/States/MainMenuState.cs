@@ -52,7 +52,6 @@ public sealed class MainMenuState : GameState, IMainMenuNavigator
         return UniTask.CompletedTask;
     }
 
-
     public UniTask NavigateAsync(MainMenuScreen targetScreen)
     {
         return TransitionToScreenAsync(targetScreen);

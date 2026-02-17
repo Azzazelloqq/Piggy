@@ -16,8 +16,6 @@ namespace Code.Game.Bootstrap.State
             {
                 return;
             }
-            
-            
         }
     }
 }

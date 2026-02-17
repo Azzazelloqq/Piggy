@@ -94,6 +94,11 @@ public sealed class MainMenuScreenTransitionPresenter
 
     private static bool IsOffscreen(RectTransform panel)
     {
+        if (!panel.gameObject.activeInHierarchy)
+        {
+            return true;
+        }
+
         var parent = panel.parent as RectTransform;
         if (parent == null)
         {

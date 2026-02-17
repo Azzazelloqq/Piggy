@@ -53,10 +53,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Code.Game.MainMenu.Window.MainMenuView
   _layout:
-    _transitionDuration: 0.35
-    _showOvershoot: 1.2
+    _transitionDuration: 0.28
+    _showOvershoot: 0
     _offscreenPadding: 60
     _useUnscaledTime: 1
+    _panelShowEase: 6
+    _panelHideEase: 5
+    _panelShowSteps: 4
+    _panelHideSteps: 3
+    _panelShowOvershoot: 0
+    _panelHideOvershoot: 0
+    _contentShowEase: 6
+    _contentHideEase: 5
+    _contentShowSteps: 3
+    _contentHideSteps: 2
+    _contentShowOvershoot: 0
+    _contentHideOvershoot: 0
     _menuShown: {x: 0, y: 0}
     _settingsShown: {x: 0, y: 0}
     _exitShown: {x: 0, y: 0}

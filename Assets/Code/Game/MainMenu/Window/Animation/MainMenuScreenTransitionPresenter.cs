@@ -219,9 +219,9 @@ public sealed class MainMenuScreenTransitionPresenter
         bool show,
         CancellationToken token)
     {
-        var duration = _view.Layout.TransitionDuration;
-        var useUnscaledTime = _view.Layout.UseUnscaledTime;
-        var showOvershoot = _view.Layout.ShowOvershoot;
+        var layout = _view.Layout;
+        var duration = layout.TransitionDuration;
+        var useUnscaledTime = layout.UseUnscaledTime;
 
         if (show)
         {
@@ -243,7 +243,12 @@ public sealed class MainMenuScreenTransitionPresenter
                 position,
                 duration,
                 useUnscaledTime,
-                showOvershoot,
+                layout.PanelShowEase,
+                layout.PanelShowOvershoot,
+                layout.PanelShowSteps,
+                layout.PanelHideEase,
+                layout.PanelHideOvershoot,
+                layout.PanelHideSteps,
                 token,
                 show),
             MainMenuPanelContentAnimator.PlayAsync(
@@ -253,6 +258,12 @@ public sealed class MainMenuScreenTransitionPresenter
                 direction,
                 duration,
                 useUnscaledTime,
+                layout.ContentShowEase,
+                layout.ContentShowOvershoot,
+                layout.ContentShowSteps,
+                layout.ContentHideEase,
+                layout.ContentHideOvershoot,
+                layout.ContentHideSteps,
                 token));
 
         if (show)

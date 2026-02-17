@@ -1,6 +1,5 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using Code.Game.Async;
+using Cysharp.Threading.Tasks;
 using MVP;
 
 namespace Code.Game.MainMenu.Window
@@ -8,8 +7,8 @@ namespace Code.Game.MainMenu.Window
 public abstract class MainMenuExitConfirmPresenterBase
     : Presenter<MainMenuExitConfirmViewBase, MainMenuExitConfirmModelBase>
 {
-    public event Action Confirmed;
-    public event Action Canceled;
+    public AsyncEvent Confirmed { get; } = new AsyncEvent();
+    public AsyncEvent Canceled { get; } = new AsyncEvent();
 
     protected MainMenuExitConfirmPresenterBase(
         MainMenuExitConfirmViewBase view,
@@ -21,17 +20,17 @@ public abstract class MainMenuExitConfirmPresenterBase
     public abstract void Show();
     public abstract void Hide();
 
-    public abstract void ConfirmExit();
-    public abstract void CancelExit();
+    public abstract UniTask ConfirmExitAsync();
+    public abstract UniTask CancelExitAsync();
 
-    protected void NotifyConfirmed()
+    protected UniTask NotifyConfirmedAsync()
     {
-        Confirmed?.Invoke();
+        return Confirmed.InvokeAsync();
     }
 
-    protected void NotifyCanceled()
+    protected UniTask NotifyCanceledAsync()
     {
-        Canceled?.Invoke();
+        return Canceled.InvokeAsync();
     }
 }
 }

@@ -1,4 +1,6 @@
 using System;
+using Code.Game.Async;
+using Cysharp.Threading.Tasks;
 using MVP;
 
 namespace Code.Game.MainMenu.Window
@@ -6,29 +8,29 @@ namespace Code.Game.MainMenu.Window
 public abstract class MainMenuSettingsModelBase : Model
 {
     public event Action<bool> VisibilityChanged;
-    public event Action BackRequested;
-    public event Action ApplyRequested;
+    public AsyncEvent BackRequested { get; } = new AsyncEvent();
+    public AsyncEvent ApplyRequested { get; } = new AsyncEvent();
 
     public abstract bool IsVisible { get; }
 
     public abstract void Show();
     public abstract void Hide();
-    public abstract void RequestBack();
-    public abstract void RequestApply();
+    public abstract UniTask RequestBackAsync();
+    public abstract UniTask RequestApplyAsync();
 
     protected void NotifyVisibilityChanged(bool isVisible)
     {
         VisibilityChanged?.Invoke(isVisible);
     }
 
-    protected void NotifyBackRequested()
+    protected UniTask NotifyBackRequestedAsync()
     {
-        BackRequested?.Invoke();
+        return BackRequested.InvokeAsync();
     }
 
-    protected void NotifyApplyRequested()
+    protected UniTask NotifyApplyRequestedAsync()
     {
-        ApplyRequested?.Invoke();
+        return ApplyRequested.InvokeAsync();
     }
 }
 }

@@ -47,6 +47,7 @@ public static class MainMenuPanelAnimator
         {
             await tween.AsyncWaitForCompletion();
         }
+
         token.ThrowIfCancellationRequested();
     }
 

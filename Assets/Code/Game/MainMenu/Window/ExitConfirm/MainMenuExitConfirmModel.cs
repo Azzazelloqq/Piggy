@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Code.Game.MainMenu.Window
 {
@@ -31,24 +32,24 @@ public sealed class MainMenuExitConfirmModel : MainMenuExitConfirmModelBase
         NotifyVisibilityChanged(false);
     }
 
-    public override void RequestConfirm()
+    public override UniTask RequestConfirmAsync()
     {
         if (!_isVisible)
         {
-            return;
+            return UniTask.CompletedTask;
         }
 
-        NotifyConfirmRequested();
+        return NotifyConfirmRequestedAsync();
     }
 
-    public override void RequestCancel()
+    public override UniTask RequestCancelAsync()
     {
         if (!_isVisible)
         {
-            return;
+            return UniTask.CompletedTask;
         }
 
-        NotifyCancelRequested();
+        return NotifyCancelRequestedAsync();
     }
 
     protected override void OnInitialize()

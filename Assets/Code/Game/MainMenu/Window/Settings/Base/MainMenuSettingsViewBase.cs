@@ -1,5 +1,6 @@
-using System;
 using System.Collections.Generic;
+using Code.Game.Async;
+using Cysharp.Threading.Tasks;
 using MVP;
 using UnityEngine;
 
@@ -8,22 +9,22 @@ namespace Code.Game.MainMenu.Window
 public abstract class MainMenuSettingsViewBase
     : ViewMonoBehaviour<MainMenuSettingsPresenterBase>
 {
-    public event Action BackClicked;
-    public event Action ApplyClicked;
+    public AsyncEvent BackClicked { get; } = new AsyncEvent();
+    public AsyncEvent ApplyClicked { get; } = new AsyncEvent();
 
     public abstract RectTransform Panel { get; }
     public abstract IReadOnlyList<RectTransform> AnimatedElements { get; }
     public abstract void SetVisible(bool isVisible);
     public abstract void SetInteractable(bool isInteractable);
 
-    protected void RaiseBackClicked()
+    protected UniTask RaiseBackClicked()
     {
-        BackClicked?.Invoke();
+        return BackClicked.InvokeAsync();
     }
 
-    protected void RaiseApplyClicked()
+    protected UniTask RaiseApplyClicked()
     {
-        ApplyClicked?.Invoke();
+        return ApplyClicked.InvokeAsync();
     }
 }
 }

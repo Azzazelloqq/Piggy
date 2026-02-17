@@ -1,6 +1,5 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using Code.Game.Async;
+using Cysharp.Threading.Tasks;
 using MVP;
 
 namespace Code.Game.MainMenu.Window
@@ -8,8 +7,8 @@ namespace Code.Game.MainMenu.Window
     public abstract class MainMenuSettingsPresenterBase
         : Presenter<MainMenuSettingsViewBase, MainMenuSettingsModelBase>
     {
-        public event Action BackRequested;
-        public event Action ApplyRequested;
+        public AsyncEvent BackRequested { get; } = new AsyncEvent();
+        public AsyncEvent ApplyRequested { get; } = new AsyncEvent();
 
         protected MainMenuSettingsPresenterBase(MainMenuSettingsViewBase view, MainMenuSettingsModelBase model)
             : base(view, model)
@@ -19,17 +18,17 @@ namespace Code.Game.MainMenu.Window
         public abstract void Show();
         public abstract void Hide();
 
-        public abstract void RequestBack();
-        public abstract void RequestApply();
+        public abstract UniTask RequestBackAsync();
+        public abstract UniTask RequestApplyAsync();
 
-        protected void NotifyBackRequested()
+        protected UniTask NotifyBackRequestedAsync()
         {
-            BackRequested?.Invoke();
+            return BackRequested.InvokeAsync();
         }
 
-        protected void NotifyApplyRequested()
+        protected UniTask NotifyApplyRequestedAsync()
         {
-            ApplyRequested?.Invoke();
+            return ApplyRequested.InvokeAsync();
         }
     }
 }

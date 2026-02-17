@@ -1,7 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Code.Game.Async;
+using Cysharp.Threading.Tasks;
 using MVP;
 using UnityEngine;
 
@@ -10,22 +11,22 @@ namespace Code.Game.MainMenu.Window
 public abstract class MainMenuExitConfirmViewBase
     : ViewMonoBehaviour<MainMenuExitConfirmPresenterBase>
 {
-    public event Action ConfirmClicked;
-    public event Action CancelClicked;
+    public AsyncEvent ConfirmClicked { get; } = new AsyncEvent();
+    public AsyncEvent CancelClicked { get; } = new AsyncEvent();
 
     public abstract RectTransform Panel { get; }
     public abstract IReadOnlyList<RectTransform> AnimatedElements { get; }
     public abstract void SetVisible(bool isVisible);
     public abstract void SetInteractable(bool isInteractable);
 
-    protected void RaiseConfirmClicked()
+    protected UniTask RaiseConfirmClicked()
     {
-        ConfirmClicked?.Invoke();
+        return ConfirmClicked.InvokeAsync();
     }
 
-    protected void RaiseCancelClicked()
+    protected UniTask RaiseCancelClicked()
     {
-        CancelClicked?.Invoke();
+        return CancelClicked.InvokeAsync();
     }
 
     protected override void OnInitialize()

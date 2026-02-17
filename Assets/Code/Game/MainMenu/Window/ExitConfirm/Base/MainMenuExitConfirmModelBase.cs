@@ -1,6 +1,6 @@
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using Code.Game.Async;
+using Cysharp.Threading.Tasks;
 using MVP;
 
 namespace Code.Game.MainMenu.Window
@@ -8,29 +8,29 @@ namespace Code.Game.MainMenu.Window
 public abstract class MainMenuExitConfirmModelBase : Model
 {
     public event Action<bool> VisibilityChanged;
-    public event Action ConfirmRequested;
-    public event Action CancelRequested;
+    public AsyncEvent ConfirmRequested { get; } = new AsyncEvent();
+    public AsyncEvent CancelRequested { get; } = new AsyncEvent();
 
     public abstract bool IsVisible { get; }
 
     public abstract void Show();
     public abstract void Hide();
-    public abstract void RequestConfirm();
-    public abstract void RequestCancel();
+    public abstract UniTask RequestConfirmAsync();
+    public abstract UniTask RequestCancelAsync();
 
     protected void NotifyVisibilityChanged(bool isVisible)
     {
         VisibilityChanged?.Invoke(isVisible);
     }
 
-    protected void NotifyConfirmRequested()
+    protected UniTask NotifyConfirmRequestedAsync()
     {
-        ConfirmRequested?.Invoke();
+        return ConfirmRequested.InvokeAsync();
     }
 
-    protected void NotifyCancelRequested()
+    protected UniTask NotifyCancelRequestedAsync()
     {
-        CancelRequested?.Invoke();
+        return CancelRequested.InvokeAsync();
     }
 }
 }

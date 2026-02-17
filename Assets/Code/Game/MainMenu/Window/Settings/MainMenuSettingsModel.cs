@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Code.Game.MainMenu.Window
 {
@@ -31,24 +32,24 @@ namespace Code.Game.MainMenu.Window
             NotifyVisibilityChanged(false);
         }
 
-        public override void RequestBack()
+        public override UniTask RequestBackAsync()
         {
             if (!_isVisible)
             {
-                return;
+                return UniTask.CompletedTask;
             }
 
-            NotifyBackRequested();
+            return NotifyBackRequestedAsync();
         }
 
-        public override void RequestApply()
+        public override UniTask RequestApplyAsync()
         {
             if (!_isVisible)
             {
-                return;
+                return UniTask.CompletedTask;
             }
 
-            NotifyApplyRequested();
+            return NotifyApplyRequestedAsync();
         }
 
         protected override void OnInitialize()

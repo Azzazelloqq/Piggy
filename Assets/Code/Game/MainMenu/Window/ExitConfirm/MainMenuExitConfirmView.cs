@@ -126,13 +126,27 @@ public sealed class MainMenuExitConfirmView : MainMenuExitConfirmViewBase
             WaitForClicksAsync(_cancelButton, RaiseCancelClicked, token));
     }
 
-    private static async UniTask WaitForClicksAsync(Button button, Action onClick, CancellationToken token)
+    private static async UniTask WaitForClicksAsync(Button button, Func<UniTask> onClick, CancellationToken token)
     {
         try
         {
             await foreach (var _ in button.OnClickAsAsyncEnumerable(token))
             {
-                onClick?.Invoke();
+                try
+                {
+                    if (onClick != null)
+                    {
+                        await onClick();
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
             }
         }
         catch (OperationCanceledException)

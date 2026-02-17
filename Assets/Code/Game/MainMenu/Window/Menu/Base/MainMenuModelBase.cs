@@ -1,6 +1,6 @@
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using Code.Game.Async;
+using Cysharp.Threading.Tasks;
 using MVP;
 
 namespace Code.Game.MainMenu.Window
@@ -8,36 +8,36 @@ namespace Code.Game.MainMenu.Window
 public abstract class MainMenuModelBase : Model
 {
     public event Action<bool> VisibilityChanged;
-    public event Action PlayRequested;
-    public event Action SettingsRequested;
-    public event Action ExitRequested;
+    public AsyncEvent PlayRequested { get; } = new AsyncEvent();
+    public AsyncEvent SettingsRequested { get; } = new AsyncEvent();
+    public AsyncEvent ExitRequested { get; } = new AsyncEvent();
 
     public abstract bool IsVisible { get; }
 
     public abstract void Show();
     public abstract void Hide();
-    public abstract void RequestPlay();
-    public abstract void RequestSettings();
-    public abstract void RequestExit();
+    public abstract UniTask RequestPlayAsync();
+    public abstract UniTask RequestSettingsAsync();
+    public abstract UniTask RequestExitAsync();
 
     protected void NotifyVisibilityChanged(bool isVisible)
     {
         VisibilityChanged?.Invoke(isVisible);
     }
 
-    protected void NotifyPlayRequested()
+    protected UniTask NotifyPlayRequestedAsync()
     {
-        PlayRequested?.Invoke();
+        return PlayRequested.InvokeAsync();
     }
 
-    protected void NotifySettingsRequested()
+    protected UniTask NotifySettingsRequestedAsync()
     {
-        SettingsRequested?.Invoke();
+        return SettingsRequested.InvokeAsync();
     }
 
-    protected void NotifyExitRequested()
+    protected UniTask NotifyExitRequestedAsync()
     {
-        ExitRequested?.Invoke();
+        return ExitRequested.InvokeAsync();
     }
 }
 }

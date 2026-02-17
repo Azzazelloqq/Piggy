@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Code.Game.Async;
+using Cysharp.Threading.Tasks;
 using MVP;
 using UnityEngine;
 
@@ -43,9 +45,9 @@ public abstract class MainMenuViewBase
         public Vector2 ExitShown => _exitShown;
     }
 
-    public event Action PlayClicked;
-    public event Action SettingsClicked;
-    public event Action ExitClicked;
+    public AsyncEvent PlayClicked { get; } = new AsyncEvent();
+    public AsyncEvent SettingsClicked { get; } = new AsyncEvent();
+    public AsyncEvent ExitClicked { get; } = new AsyncEvent();
 
     public abstract RectTransform Panel { get; }
     public abstract LayoutData Layout { get; }
@@ -55,19 +57,19 @@ public abstract class MainMenuViewBase
     internal abstract MainMenuSettingsViewBase SettingsView { get; }
     internal abstract MainMenuExitConfirmViewBase ExitConfirmView { get; }
 
-    protected void RaisePlayClicked()
+    protected UniTask RaisePlayClicked()
     {
-        PlayClicked?.Invoke();
+        return PlayClicked.InvokeAsync();
     }
 
-    protected void RaiseSettingsClicked()
+    protected UniTask RaiseSettingsClicked()
     {
-        SettingsClicked?.Invoke();
+        return SettingsClicked.InvokeAsync();
     }
 
-    protected void RaiseExitClicked()
+    protected UniTask RaiseExitClicked()
     {
-        ExitClicked?.Invoke();
+        return ExitClicked.InvokeAsync();
     }
 }
 }

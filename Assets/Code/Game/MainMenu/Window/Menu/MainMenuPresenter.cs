@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Code.Game.Async;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 namespace Code.Game.MainMenu.Window
 {
@@ -11,21 +9,12 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
 {
     private readonly MainMenuSettingsPresenter _settingsPresenter;
     private readonly MainMenuExitConfirmPresenter _exitPresenter;
-    private readonly MainMenuViewBase.LayoutData _layoutSettings;
-    private readonly PanelHandle _menuPanel;
-    private readonly PanelHandle _settingsPanel;
-    private readonly PanelHandle _exitPanel;
-    private Vector2 _menuShownPosition;
-    private Vector2 _settingsShownPosition;
-    private Vector2 _exitShownPosition;
-    private bool _layoutCaptured;
-    private MainMenuScreen _currentScreen;
-    private bool _isTransitioning;
+    private readonly MainMenuScreenTransitionPresenter _transitionPresenter;
 
-    public event Action SettingsBackRequested;
-    public event Action SettingsApplyRequested;
-    public event Action ExitConfirmed;
-    public event Action ExitCanceled;
+    public AsyncEvent SettingsBackRequested { get; } = new();
+    public AsyncEvent SettingsApplyRequested { get; } = new();
+    public AsyncEvent ExitConfirmed { get; } = new();
+    public AsyncEvent ExitCanceled { get; } = new();
 
     public MainMenuPresenter(MainMenuViewBase view, MainMenuModelBase model)
         : base(view, model)
@@ -42,66 +31,38 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
         compositeDisposable.AddDisposable(_settingsPresenter);
         compositeDisposable.AddDisposable(_exitPresenter);
 
-        _layoutSettings = view.Layout;
-        _menuPanel = new PanelHandle(view.Panel, Show, Hide, view.SetInteractable, view.AnimatedElements);
-        _settingsPanel = new PanelHandle(settingsViewBase.Panel, _settingsPresenter.Show, _settingsPresenter.Hide,
-            settingsViewBase.SetInteractable, settingsViewBase.AnimatedElements);
-        _exitPanel = new PanelHandle(exitConfirmViewBase.Panel, _exitPresenter.Show, _exitPresenter.Hide,
-            exitConfirmViewBase.SetInteractable, exitConfirmViewBase.AnimatedElements);
+        var menuPanel = new MainMenuScreenTransitionView.PanelHandle(
+            view.Panel,
+            Show,
+            Hide,
+            view.SetInteractable,
+            view.AnimatedElements);
+        var settingsPanel = new MainMenuScreenTransitionView.PanelHandle(
+            settingsViewBase.Panel,
+            _settingsPresenter.Show,
+            _settingsPresenter.Hide,
+            settingsViewBase.SetInteractable,
+            settingsViewBase.AnimatedElements);
+        var exitPanel = new MainMenuScreenTransitionView.PanelHandle(
+            exitConfirmViewBase.Panel,
+            _exitPresenter.Show,
+            _exitPresenter.Hide,
+            exitConfirmViewBase.SetInteractable,
+            exitConfirmViewBase.AnimatedElements);
+        var transitionView = new MainMenuScreenTransitionView(view.Layout, menuPanel, settingsPanel, exitPanel);
+        _transitionPresenter = new MainMenuScreenTransitionPresenter(
+            transitionView,
+            new MainMenuScreenTransitionModel());
     }
 
     public void ApplyScreenLayoutImmediate(MainMenuScreen screen)
     {
-        EnsureLayoutCaptured();
-
-        var showMenu = screen == MainMenuScreen.Menu;
-        var showSettings = screen == MainMenuScreen.Settings;
-        var showExit = screen == MainMenuScreen.ExitConfirm;
-
-        ApplyPanelImmediate(_menuPanel, GetMenuTarget(screen), showMenu);
-        ApplyPanelImmediate(_settingsPanel, GetSettingsTarget(screen), showSettings);
-        ApplyPanelImmediate(_exitPanel, GetExitTarget(screen), showExit);
-
-        _currentScreen = screen;
+        _transitionPresenter.ApplyScreenLayoutImmediate(screen);
     }
 
     public async UniTask<bool> TryTransitionToScreenAsync(MainMenuScreen targetScreen, CancellationToken token)
     {
-        EnsureLayoutCaptured();
-
-        if (_isTransitioning || _currentScreen == targetScreen)
-        {
-            return false;
-        }
-
-        _isTransitioning = true;
-        try
-        {
-            var currentScreen = _currentScreen;
-
-            await MovePanelAsync(
-                ResolvePanelHandle(currentScreen),
-                ResolvePanelTarget(currentScreen, targetScreen),
-                false,
-                token);
-
-            await MovePanelAsync(
-                ResolvePanelHandle(targetScreen),
-                ResolvePanelTarget(targetScreen, targetScreen),
-                true,
-                token);
-
-            _currentScreen = targetScreen;
-            return true;
-        }
-        catch (OperationCanceledException)
-        {
-            return false;
-        }
-        finally
-        {
-            _isTransitioning = false;
-        }
+        return await _transitionPresenter.TryTransitionToScreenAsync(targetScreen, token);
     }
 
     protected override void OnInitialize()
@@ -127,7 +88,7 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
     protected override void OnDispose()
     {
         UnsubscribeOneEvents();
-        
+
         _settingsPresenter.Dispose();
         _exitPresenter.Dispose();
     }
@@ -138,7 +99,7 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
 
         _settingsPresenter.Dispose();
         _exitPresenter.Dispose();
-        
+
         return default;
     }
 
@@ -152,34 +113,34 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
         model.Hide();
     }
 
-    public override void RequestPlay()
+    public override UniTask RequestPlayAsync()
     {
-        model.RequestPlay();
+        return model.RequestPlayAsync();
     }
 
-    public override void RequestSettings()
+    public override UniTask RequestSettingsAsync()
     {
-        model.RequestSettings();
+        return model.RequestSettingsAsync();
     }
 
-    public override void RequestExit()
+    public override UniTask RequestExitAsync()
     {
-        model.RequestExit();
+        return model.RequestExitAsync();
     }
 
-    private void HandlePlayClicked()
+    private UniTask HandlePlayClicked()
     {
-        model.RequestPlay();
+        return model.RequestPlayAsync();
     }
 
-    private void HandleSettingsClicked()
+    private UniTask HandleSettingsClicked()
     {
-        model.RequestSettings();
+        return model.RequestSettingsAsync();
     }
 
-    private void HandleExitClicked()
+    private UniTask HandleExitClicked()
     {
-        model.RequestExit();
+        return model.RequestExitAsync();
     }
 
     private void HandleVisibilityChanged(bool isVisible)
@@ -187,298 +148,76 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
         view.SetVisible(isVisible);
     }
 
-    private void HandlePlayRequested()
+    private UniTask HandlePlayRequested()
     {
-        NotifyPlayRequested();
+        return NotifyPlayRequestedAsync();
     }
 
-    private void HandleSettingsRequested()
+    private UniTask HandleSettingsRequested()
     {
-        NotifySettingsRequested();
+        return NotifySettingsRequestedAsync();
     }
 
-    private void HandleExitRequested()
+    private UniTask HandleExitRequested()
     {
-        NotifyExitRequested();
+        return NotifyExitRequestedAsync();
     }
 
-    private void HandleSettingsBackRequested()
+    private UniTask HandleSettingsBackRequested()
     {
-        SettingsBackRequested?.Invoke();
+        return SettingsBackRequested.InvokeAsync();
     }
 
-    private void HandleSettingsApplyRequested()
+    private UniTask HandleSettingsApplyRequested()
     {
-        SettingsApplyRequested?.Invoke();
+        return SettingsApplyRequested.InvokeAsync();
     }
 
-    private void HandleExitConfirmed()
+    private UniTask HandleExitConfirmed()
     {
-        ExitConfirmed?.Invoke();
+        return ExitConfirmed.InvokeAsync();
     }
 
-    private void HandleExitCanceled()
+    private UniTask HandleExitCanceled()
     {
-        ExitCanceled?.Invoke();
+        return ExitCanceled.InvokeAsync();
     }
 
     private void SubscribeOnEvents()
     {
-        view.PlayClicked += HandlePlayClicked;
-        view.SettingsClicked += HandleSettingsClicked;
-        view.ExitClicked += HandleExitClicked;
+        view.PlayClicked.Subscribe(HandlePlayClicked);
+        view.SettingsClicked.Subscribe(HandleSettingsClicked);
+        view.ExitClicked.Subscribe(HandleExitClicked);
 
         model.VisibilityChanged += HandleVisibilityChanged;
-        model.PlayRequested += HandlePlayRequested;
-        model.SettingsRequested += HandleSettingsRequested;
-        model.ExitRequested += HandleExitRequested;
+        model.PlayRequested.Subscribe(HandlePlayRequested);
+        model.SettingsRequested.Subscribe(HandleSettingsRequested);
+        model.ExitRequested.Subscribe(HandleExitRequested);
 
-        _settingsPresenter.BackRequested += HandleSettingsBackRequested;
-        _settingsPresenter.ApplyRequested += HandleSettingsApplyRequested;
+        _settingsPresenter.BackRequested.Subscribe(HandleSettingsBackRequested);
+        _settingsPresenter.ApplyRequested.Subscribe(HandleSettingsApplyRequested);
 
-        _exitPresenter.Confirmed += HandleExitConfirmed;
-        _exitPresenter.Canceled += HandleExitCanceled;
+        _exitPresenter.Confirmed.Subscribe(HandleExitConfirmed);
+        _exitPresenter.Canceled.Subscribe(HandleExitCanceled);
     }
 
     private void UnsubscribeOneEvents()
     {
-        view.PlayClicked -= HandlePlayClicked;
-        view.SettingsClicked -= HandleSettingsClicked;
-        view.ExitClicked -= HandleExitClicked;
+        view.PlayClicked.Unsubscribe(HandlePlayClicked);
+        view.SettingsClicked.Unsubscribe(HandleSettingsClicked);
+        view.ExitClicked.Unsubscribe(HandleExitClicked);
 
         model.VisibilityChanged -= HandleVisibilityChanged;
-        model.PlayRequested -= HandlePlayRequested;
-        model.SettingsRequested -= HandleSettingsRequested;
-        model.ExitRequested -= HandleExitRequested;
+        model.PlayRequested.Unsubscribe(HandlePlayRequested);
+        model.SettingsRequested.Unsubscribe(HandleSettingsRequested);
+        model.ExitRequested.Unsubscribe(HandleExitRequested);
 
-        _settingsPresenter.BackRequested -= HandleSettingsBackRequested;
-        _settingsPresenter.ApplyRequested -= HandleSettingsApplyRequested;
+        _settingsPresenter.BackRequested.Unsubscribe(HandleSettingsBackRequested);
+        _settingsPresenter.ApplyRequested.Unsubscribe(HandleSettingsApplyRequested);
 
-        _exitPresenter.Confirmed -= HandleExitConfirmed;
-        _exitPresenter.Canceled -= HandleExitCanceled;
+        _exitPresenter.Confirmed.Unsubscribe(HandleExitConfirmed);
+        _exitPresenter.Canceled.Unsubscribe(HandleExitCanceled);
     }
 
-    private void EnsureLayoutCaptured()
-    {
-        if (_layoutCaptured)
-        {
-            return;
-        }
-
-        Canvas.ForceUpdateCanvases();
-
-        _menuShownPosition = ResolveShownPosition(_menuPanel.Panel, _layoutSettings.MenuShown);
-        _settingsShownPosition = ResolveShownPosition(_settingsPanel.Panel, _layoutSettings.SettingsShown);
-        _exitShownPosition = ResolveShownPosition(_exitPanel.Panel, _layoutSettings.ExitShown);
-        _layoutCaptured = true;
-    }
-
-    private Vector2 ResolveShownPosition(RectTransform panel, Vector2 fallbackPosition)
-    {
-        return IsOffscreen(panel) ? fallbackPosition : panel.anchoredPosition;
-    }
-
-    private bool IsOffscreen(RectTransform panel)
-    {
-        var parent = panel.parent as RectTransform;
-        if (parent == null)
-        {
-            return false;
-        }
-
-        var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(parent, panel);
-        var parentRect = parent.rect;
-
-        return bounds.max.x < parentRect.xMin
-            || bounds.min.x > parentRect.xMax
-            || bounds.max.y < parentRect.yMin
-            || bounds.min.y > parentRect.yMax;
-    }
-
-    private Vector2 GetMenuTarget(MainMenuScreen screen)
-    {
-        return screen == MainMenuScreen.Menu
-            ? _menuShownPosition
-            : GetHiddenPosition(_menuPanel.Panel, _menuShownPosition, HideDirection.Up);
-    }
-
-    private Vector2 GetSettingsTarget(MainMenuScreen screen)
-    {
-        return screen == MainMenuScreen.Settings
-            ? _settingsShownPosition
-            : GetHiddenPosition(_settingsPanel.Panel, _settingsShownPosition, HideDirection.Left);
-    }
-
-    private Vector2 GetExitTarget(MainMenuScreen screen)
-    {
-        return screen == MainMenuScreen.ExitConfirm
-            ? _exitShownPosition
-            : GetHiddenPosition(_exitPanel.Panel, _exitShownPosition, HideDirection.Down);
-    }
-
-    private PanelHandle ResolvePanelHandle(MainMenuScreen screen)
-    {
-        return screen switch
-        {
-            MainMenuScreen.Menu => _menuPanel,
-            MainMenuScreen.Settings => _settingsPanel,
-            MainMenuScreen.ExitConfirm => _exitPanel,
-            _ => _menuPanel
-        };
-    }
-
-    private Vector2 ResolvePanelTarget(MainMenuScreen panelScreen, MainMenuScreen targetScreen)
-    {
-        return panelScreen switch
-        {
-            MainMenuScreen.Menu => GetMenuTarget(targetScreen),
-            MainMenuScreen.Settings => GetSettingsTarget(targetScreen),
-            MainMenuScreen.ExitConfirm => GetExitTarget(targetScreen),
-            _ => GetMenuTarget(targetScreen)
-        };
-    }
-
-    private Vector2 GetHiddenPosition(RectTransform panel, Vector2 shownPosition, HideDirection direction)
-    {
-        var parent = panel.parent as RectTransform;
-        var padding = _layoutSettings.OffscreenPadding;
-
-        if (parent == null)
-        {
-            var size = panel.rect.size;
-            return direction switch
-            {
-                HideDirection.Up => shownPosition + Vector2.up * (size.y + padding),
-                HideDirection.Down => shownPosition + Vector2.down * (size.y + padding),
-                HideDirection.Left => shownPosition + Vector2.left * (size.x + padding),
-                _ => shownPosition
-            };
-        }
-
-        var parentRect = parent.rect;
-        var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(parent, panel);
-        var deltaToShown = shownPosition - panel.anchoredPosition;
-        bounds.center += (Vector3)deltaToShown;
-
-        return direction switch
-        {
-            HideDirection.Up => shownPosition + new Vector2(0f, (parentRect.yMax + padding) - bounds.min.y),
-            HideDirection.Down => shownPosition + new Vector2(0f, (parentRect.yMin - padding) - bounds.max.y),
-            HideDirection.Left => shownPosition + new Vector2((parentRect.xMin - padding) - bounds.max.x, 0f),
-            _ => shownPosition
-        };
-    }
-
-    private enum HideDirection
-    {
-        Up,
-        Left,
-        Down
-    }
-
-    private readonly struct PanelHandle
-    {
-        public PanelHandle(
-            RectTransform panel,
-            Action show,
-            Action hide,
-            Action<bool> setInteractable,
-            IReadOnlyList<RectTransform> elements)
-        {
-            Panel = panel;
-            _show = show;
-            _hide = hide;
-            _setInteractable = setInteractable;
-            Elements = elements;
-        }
-
-        public RectTransform Panel { get; }
-        public IReadOnlyList<RectTransform> Elements { get; }
-        private readonly Action _show;
-        private readonly Action _hide;
-        private readonly Action<bool> _setInteractable;
-
-        public void Show()
-        {
-            _show?.Invoke();
-        }
-
-        public void Hide()
-        {
-            _hide?.Invoke();
-        }
-
-        public void SetInteractable(bool isInteractable)
-        {
-            _setInteractable?.Invoke(isInteractable);
-        }
-    }
-
-    private void ApplyPanelImmediate(PanelHandle panel, Vector2 position, bool show)
-    {
-        MainMenuPanelAnimator.SetImmediate(panel.Panel, position);
-        if (show)
-        {
-            panel.Show();
-            panel.SetInteractable(true);
-        }
-        else
-        {
-            panel.SetInteractable(false);
-            panel.Hide();
-        }
-    }
-
-    private async UniTask MovePanelAsync(
-        PanelHandle panel,
-        Vector2 position,
-        bool show,
-        CancellationToken token)
-    {
-        var duration = _layoutSettings.TransitionDuration;
-        var useUnscaledTime = _layoutSettings.UseUnscaledTime;
-        var showOvershoot = _layoutSettings.ShowOvershoot;
-
-        if (show)
-        {
-            panel.Show();
-        }
-
-        panel.SetInteractable(false);
-
-        var startPosition = panel.Panel.anchoredPosition;
-        var direction = position - startPosition;
-        if (direction.sqrMagnitude <= 0.0001f)
-        {
-            direction = Vector2.up;
-        }
-
-        await UniTask.WhenAll(
-            MainMenuPanelAnimator.MoveAsync(
-                panel.Panel,
-                position,
-                duration,
-                useUnscaledTime,
-                showOvershoot,
-                token,
-                show),
-            MainMenuPanelContentAnimator.PlayAsync(
-                panel.Panel,
-                panel.Elements,
-                show,
-                direction,
-                duration,
-                useUnscaledTime,
-                token));
-
-        if (show)
-        {
-            panel.SetInteractable(true);
-        }
-        else
-        {
-            panel.Hide();
-        }
-    }
 }
 }

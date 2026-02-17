@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Code.Game.MainMenu.Window
 {
@@ -20,36 +21,36 @@ namespace Code.Game.MainMenu.Window
             model.Hide();
         }
 
-        public override void RequestBack()
+        public override UniTask RequestBackAsync()
         {
-            model.RequestBack();
+            return model.RequestBackAsync();
         }
 
-        public override void RequestApply()
+        public override UniTask RequestApplyAsync()
         {
-            model.RequestApply();
+            return model.RequestApplyAsync();
         }
 
         protected override void OnInitialize()
         {
-            view.BackClicked += HandleBackClicked;
-            view.ApplyClicked += HandleApplyClicked;
+            view.BackClicked.Subscribe(HandleBackClicked);
+            view.ApplyClicked.Subscribe(HandleApplyClicked);
 
             model.VisibilityChanged += HandleVisibilityChanged;
-            model.BackRequested += HandleBackRequested;
-            model.ApplyRequested += HandleApplyRequested;
+            model.BackRequested.Subscribe(HandleBackRequested);
+            model.ApplyRequested.Subscribe(HandleApplyRequested);
 
             view.SetVisible(model.IsVisible);
         }
 
         protected override ValueTask OnInitializeAsync(CancellationToken token)
         {
-            view.BackClicked += HandleBackClicked;
-            view.ApplyClicked += HandleApplyClicked;
+            view.BackClicked.Subscribe(HandleBackClicked);
+            view.ApplyClicked.Subscribe(HandleApplyClicked);
 
             model.VisibilityChanged += HandleVisibilityChanged;
-            model.BackRequested += HandleBackRequested;
-            model.ApplyRequested += HandleApplyRequested;
+            model.BackRequested.Subscribe(HandleBackRequested);
+            model.ApplyRequested.Subscribe(HandleApplyRequested);
 
             view.SetVisible(model.IsVisible);
 
@@ -58,34 +59,34 @@ namespace Code.Game.MainMenu.Window
 
         protected override void OnDispose()
         {
-            view.BackClicked -= HandleBackClicked;
-            view.ApplyClicked -= HandleApplyClicked;
+            view.BackClicked.Unsubscribe(HandleBackClicked);
+            view.ApplyClicked.Unsubscribe(HandleApplyClicked);
 
             model.VisibilityChanged -= HandleVisibilityChanged;
-            model.BackRequested -= HandleBackRequested;
-            model.ApplyRequested -= HandleApplyRequested;
+            model.BackRequested.Unsubscribe(HandleBackRequested);
+            model.ApplyRequested.Unsubscribe(HandleApplyRequested);
         }
 
         protected override ValueTask OnDisposeAsync(CancellationToken token)
         {
-            view.BackClicked -= HandleBackClicked;
-            view.ApplyClicked -= HandleApplyClicked;
+            view.BackClicked.Unsubscribe(HandleBackClicked);
+            view.ApplyClicked.Unsubscribe(HandleApplyClicked);
 
             model.VisibilityChanged -= HandleVisibilityChanged;
-            model.BackRequested -= HandleBackRequested;
-            model.ApplyRequested -= HandleApplyRequested;
+            model.BackRequested.Unsubscribe(HandleBackRequested);
+            model.ApplyRequested.Unsubscribe(HandleApplyRequested);
 
             return default;
         }
 
-        private void HandleBackClicked()
+        private UniTask HandleBackClicked()
         {
-            model.RequestBack();
+            return model.RequestBackAsync();
         }
 
-        private void HandleApplyClicked()
+        private UniTask HandleApplyClicked()
         {
-            model.RequestApply();
+            return model.RequestApplyAsync();
         }
 
         private void HandleVisibilityChanged(bool isVisible)
@@ -93,14 +94,14 @@ namespace Code.Game.MainMenu.Window
             view.SetVisible(isVisible);
         }
 
-        private void HandleBackRequested()
+        private UniTask HandleBackRequested()
         {
-            NotifyBackRequested();
+            return NotifyBackRequestedAsync();
         }
 
-        private void HandleApplyRequested()
+        private UniTask HandleApplyRequested()
         {
-            NotifyApplyRequested();
+            return NotifyApplyRequestedAsync();
         }
 
     }

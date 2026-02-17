@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace Code.Game.MainMenu.Window
 {
@@ -22,14 +23,14 @@ public sealed class MainMenuExitConfirmPresenter : MainMenuExitConfirmPresenterB
         model.Hide();
     }
 
-    public override void ConfirmExit()
+    public override UniTask ConfirmExitAsync()
     {
-        model.RequestConfirm();
+        return model.RequestConfirmAsync();
     }
 
-    public override void CancelExit()
+    public override UniTask CancelExitAsync()
     {
-        model.RequestCancel();
+        return model.RequestCancelAsync();
     }
 
     protected override void OnInitialize()
@@ -58,14 +59,14 @@ public sealed class MainMenuExitConfirmPresenter : MainMenuExitConfirmPresenterB
         return default;
     }
 
-    private void HandleConfirmClicked()
+    private UniTask HandleConfirmClicked()
     {
-        model.RequestConfirm();
+        return model.RequestConfirmAsync();
     }
 
-    private void HandleCancelClicked()
+    private UniTask HandleCancelClicked()
     {
-        model.RequestCancel();
+        return model.RequestCancelAsync();
     }
 
     private void HandleVisibilityChanged(bool isVisible)
@@ -73,34 +74,34 @@ public sealed class MainMenuExitConfirmPresenter : MainMenuExitConfirmPresenterB
         view.SetVisible(isVisible);
     }
 
-    private void HandleConfirmRequested()
+    private UniTask HandleConfirmRequested()
     {
-        NotifyConfirmed();
+        return NotifyConfirmedAsync();
     }
 
-    private void HandleCancelRequested()
+    private UniTask HandleCancelRequested()
     {
-        NotifyCanceled();
+        return NotifyCanceledAsync();
     }
 
     private void SubscribeOnEvents()
     {
-        view.ConfirmClicked += HandleConfirmClicked;
-        view.CancelClicked += HandleCancelClicked;
+        view.ConfirmClicked.Subscribe(HandleConfirmClicked);
+        view.CancelClicked.Subscribe(HandleCancelClicked);
 
         model.VisibilityChanged += HandleVisibilityChanged;
-        model.ConfirmRequested += HandleConfirmRequested;
-        model.CancelRequested += HandleCancelRequested;
+        model.ConfirmRequested.Subscribe(HandleConfirmRequested);
+        model.CancelRequested.Subscribe(HandleCancelRequested);
     }
 
     private void UnsubscribeOnEvents()
     {
-        view.ConfirmClicked -= HandleConfirmClicked;
-        view.CancelClicked -= HandleCancelClicked;
+        view.ConfirmClicked.Unsubscribe(HandleConfirmClicked);
+        view.CancelClicked.Unsubscribe(HandleCancelClicked);
 
         model.VisibilityChanged -= HandleVisibilityChanged;
-        model.ConfirmRequested -= HandleConfirmRequested;
-        model.CancelRequested -= HandleCancelRequested;
+        model.ConfirmRequested.Unsubscribe(HandleConfirmRequested);
+        model.CancelRequested.Unsubscribe(HandleCancelRequested);
     }
 }
 }

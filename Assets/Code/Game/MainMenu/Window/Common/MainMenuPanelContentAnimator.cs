@@ -20,7 +20,10 @@ public static class MainMenuPanelContentAnimator
     private const float MinStagger = 0.03f;
     private const float MaxStagger = 0.08f;
     private const float MaxJitter = 0.05f;
+    private const float ShowOvershoot = 1.2f;
     private const float DurationJitter = 0.18f;
+    private const Ease HideEase = Ease.InCubic;
+    private const Ease ShowEase = Ease.OutBack;
 
     public static async UniTask PlayAsync(
         RectTransform panel,
@@ -29,12 +32,6 @@ public static class MainMenuPanelContentAnimator
         Vector2 direction,
         float duration,
         bool useUnscaledTime,
-        Ease showEase,
-        float showOvershoot,
-        int showSteps,
-        Ease hideEase,
-        float hideOvershoot,
-        int hideSteps,
         CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
@@ -122,13 +119,18 @@ public static class MainMenuPanelContentAnimator
                 var fadeTween = state.CanvasGroup.DOFade(targetAlpha, elementDuration)
                     .SetUpdate(useUnscaledTime);
 
-                var ease = show ? showEase : hideEase;
-                var overshoot = show ? showOvershoot : hideOvershoot;
-                var steps = show ? showSteps : hideSteps;
-
-                MainMenuAnimationEase.ApplyEase(moveTween, ease, overshoot, steps, elementDuration);
-                MainMenuAnimationEase.ApplyEase(scaleTween, ease, overshoot, steps, elementDuration);
-                MainMenuAnimationEase.ApplyEase(fadeTween, ease, overshoot, steps, elementDuration);
+                if (show)
+                {
+                    moveTween.SetEase(ShowEase, ShowOvershoot);
+                    scaleTween.SetEase(ShowEase, ShowOvershoot);
+                    fadeTween.SetEase(ShowEase, ShowOvershoot);
+                }
+                else
+                {
+                    moveTween.SetEase(HideEase);
+                    scaleTween.SetEase(HideEase);
+                    fadeTween.SetEase(HideEase);
+                }
 
                 var sequence = DOTween.Sequence()
                     .SetUpdate(useUnscaledTime)

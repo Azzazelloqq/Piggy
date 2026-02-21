@@ -7,6 +7,8 @@ namespace Code.Game.MainMenu.Window
 {
 public static class MainMenuPanelAnimator
 {
+    private const Ease HideEase = Ease.InCubic;
+
     public static void SetImmediate(RectTransform panel, Vector2 position)
     {
         panel.DOKill();
@@ -18,12 +20,7 @@ public static class MainMenuPanelAnimator
         Vector2 target,
         float duration,
         bool useUnscaledTime,
-        Ease showEase,
         float showOvershoot,
-        int showSteps,
-        Ease hideEase,
-        float hideOvershoot,
-        int hideSteps,
         CancellationToken token,
         bool show)
     {
@@ -42,13 +39,9 @@ public static class MainMenuPanelAnimator
             return;
         }
 
-        var tween = panel.DOAnchorPos(target, duration)
-            .SetUpdate(useUnscaledTime);
-
-        var ease = show ? showEase : hideEase;
-        var overshoot = show ? showOvershoot : hideOvershoot;
-        var steps = show ? showSteps : hideSteps;
-        MainMenuAnimationEase.ApplyEase(tween, ease, overshoot, steps, duration);
+        var tween = show
+            ? CreateShowTween(panel, target, duration, useUnscaledTime, showOvershoot)
+            : CreateHideTween(panel, target, duration, useUnscaledTime);
 
         await using (token.Register(() => tween.Kill(false)))
         {
@@ -58,41 +51,27 @@ public static class MainMenuPanelAnimator
         token.ThrowIfCancellationRequested();
     }
 
-}
-
-internal static class MainMenuAnimationEase
-{
-    public static void ApplyEase(Tween tween, Ease ease, float overshoot, int steps, float duration)
+    private static Tween CreateShowTween(
+        RectTransform panel,
+        Vector2 target,
+        float duration,
+        bool useUnscaledTime,
+        float showOvershoot)
     {
-        if (tween == null)
-        {
-            return;
-        }
-
-        var stopMotionFps = ResolveStopMotionFps(steps, duration);
-        if (stopMotionFps > 1)
-        {
-            var eased = EaseFactory.StopMotion(stopMotionFps, (time, tweenDuration, _, _) =>
-            {
-                var t = tweenDuration <= 0f ? 1f : Mathf.Clamp01(time / tweenDuration);
-                return DOVirtual.EasedValue(0f, 1f, t, ease, overshoot);
-            });
-            tween.SetEase(eased);
-            return;
-        }
-
-        tween.SetEase(ease, overshoot);
+        return panel.DOAnchorPos(target, duration)
+            .SetEase(Ease.OutBack, showOvershoot)
+            .SetUpdate(useUnscaledTime);
     }
 
-    private static int ResolveStopMotionFps(int steps, float duration)
+    private static Tween CreateHideTween(
+        RectTransform panel,
+        Vector2 target,
+        float duration,
+        bool useUnscaledTime)
     {
-        if (steps <= 1 || duration <= 0f)
-        {
-            return 0;
-        }
-
-        var fps = Mathf.CeilToInt(steps / duration);
-        return Mathf.Max(1, fps);
+        return panel.DOAnchorPos(target, duration)
+            .SetEase(HideEase)
+            .SetUpdate(useUnscaledTime);
     }
 }
 }

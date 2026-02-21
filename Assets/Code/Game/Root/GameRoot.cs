@@ -3,6 +3,7 @@ using System.IO;
 using Code.Game.Bootstrap.State;
 using Code.Game.Loading;
 using Code.Game.MainMenu.States;
+using Code.Game.Saves;
 using Code.Generated.Addressables;
 using Disposable;
 using InGameLogger;
@@ -61,8 +62,10 @@ public class GameRoot : MonoBehaviourDisposable
 
         var savePath = Path.Combine(Application.persistentDataPath, SavesFolderName);
 
-        var unityBinaryLocalSaveSystem = new UnityBinaryLocalSaveSystem(savePath, 20);
-        _gameDiContainer.RegisterAsSingleton<ILocalSaveSystem>(unityBinaryLocalSaveSystem);
+        // var unityBinaryLocalSaveSystem = new UnityBinaryLocalSaveSystem(savePath, 20);
+        // var saveRegistry = new GameSaveRegistry();
+        // unityBinaryLocalSaveSystem.InitializeSaves(saveRegistry);
+        // _gameDiContainer.RegisterAsSingleton<ILocalSaveSystem>(unityBinaryLocalSaveSystem);
 
         try
         {

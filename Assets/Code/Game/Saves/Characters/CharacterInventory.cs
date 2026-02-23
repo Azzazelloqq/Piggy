@@ -1,16 +1,12 @@
-using System;
+using LocalSaveSystem;
 
 namespace Code.Game.Saves.Characters
 {
-public readonly struct CharacterInventory
+[SaveModel]
+[SaveVersion(1)]
+public struct CharacterInventory
 {
-    public string[] InventoryItems { get; }
-    public int InventoryCapacity { get; }
-
-    public CharacterInventory(string[] inventoryItems, int inventoryCapacity)
-    {
-        InventoryItems = inventoryItems ?? Array.Empty<string>();
-        InventoryCapacity = inventoryCapacity;
-    }
+    public string[] InventoryItems { get; set; }
+    public int InventoryCapacity { get; set; }
 }
 }

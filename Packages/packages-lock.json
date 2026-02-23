@@ -26,7 +26,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "7e8123e31fbc09f9058904d6b3180131d6182e7a"
+      "hash": "e2b12db9f9dee8f0719f5e5a13e0e98f084e9528"
     },
     "com.azzazello.logger": {
       "version": "https://github.com/Azzazelloqq/InGameLogger.git",

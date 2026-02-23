@@ -1,12 +1,11 @@
+using LocalSaveSystem;
+
 namespace Code.Game.Saves.Characters
 {
-public readonly struct CharacterView 
+[SaveModel]
+[SaveVersion(1)]
+public struct CharacterView 
 {
-    public string AvatarId { get; }
-
-    public CharacterView(string avatarId)
-    {
-        AvatarId = avatarId ?? string.Empty;
-    }
+    public string AvatarId { get; set; }
 }
 }

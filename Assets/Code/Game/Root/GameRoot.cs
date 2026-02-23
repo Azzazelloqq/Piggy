@@ -59,13 +59,7 @@ public class GameRoot : MonoBehaviourDisposable
         _stateMachine.Register(mainMenuState);
 
         _gameDiContainer.RegisterAsSingleton(_stateMachine);
-
-        var savePath = Path.Combine(Application.persistentDataPath, SavesFolderName);
-
-        // var unityBinaryLocalSaveSystem = new UnityBinaryLocalSaveSystem(savePath, 20);
-        // var saveRegistry = new GameSaveRegistry();
-        // unityBinaryLocalSaveSystem.InitializeSaves(saveRegistry);
-        // _gameDiContainer.RegisterAsSingleton<ILocalSaveSystem>(unityBinaryLocalSaveSystem);
+        InitializeSaveSystem();
 
         try
         {
@@ -101,6 +95,21 @@ public class GameRoot : MonoBehaviourDisposable
         base.DisposeUnmanagedResources();
 
         _gameDiContainer.Dispose();
+    }
+
+    private void InitializeSaveSystem()
+    {
+        var savePath = Path.Combine(Application.persistentDataPath, SavesFolderName);
+        var options = new SaveStoreOptions(savePath)
+        {
+            AutoSavePeriodSeconds = 20
+        };
+
+        var saveStore = new SaveStore(options);
+        saveStore.RegisterKeys(GameSaveKeys.All);
+        saveStore.StartAutoSave();
+
+        _gameDiContainer.RegisterAsSingleton<ISaveStore>(saveStore);
     }
 }
 }

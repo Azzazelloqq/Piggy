@@ -1,12 +1,15 @@
 using System;
 using Code.Game.Saves.Characters;
+using LocalSaveSystem;
 
 namespace Code.Game.Saves.Profile
 {
-public readonly struct GameProfileSave
+[SaveModel]
+[SaveVersion(1)]
+public struct GameProfileSave
 {
-    public PlayerCharacter[] PlayerCharacters { get; }
-    public int ActiveCharacterIndex { get; }
+    public PlayerCharacter[] PlayerCharacters { get; set; }
+    public int ActiveCharacterIndex { get; set; }
 
     public GameProfileSave(PlayerCharacter[] playerCharacters, int activeCharacterIndex)
     {

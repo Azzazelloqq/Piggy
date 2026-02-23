@@ -1,14 +1,12 @@
+using LocalSaveSystem;
+
 namespace Code.Game.Saves.Characters
 {
-public readonly struct CharacterSkill
+[SaveModel]
+[SaveVersion(1)]
+public struct CharacterSkill
 {
-    public string SkillId { get; }
-    public int SkillLevel { get; }
-
-    public CharacterSkill(string skillId, int skillLevel)
-    {
-        SkillId = skillId ?? string.Empty;
-        SkillLevel = skillLevel;
-    }
+    public string SkillId { get; set; }
+    public int SkillLevel { get; set; }
 }
 }

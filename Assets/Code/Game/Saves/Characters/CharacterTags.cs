@@ -1,14 +1,11 @@
-using System;
+using LocalSaveSystem;
 
 namespace Code.Game.Saves.Characters
 {
-public readonly struct CharacterTags
+[SaveModel]
+[SaveVersion(1)]
+public struct CharacterTags
 {
-    public string[] TraitsIds { get; }
-
-    public CharacterTags(string[] traitsIds)
-    {
-        TraitsIds = traitsIds ?? Array.Empty<string>();
-    }
+    public string[] TraitsIds { get; set; }
 }
 }

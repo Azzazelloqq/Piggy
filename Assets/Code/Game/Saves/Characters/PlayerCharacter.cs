@@ -1,39 +1,20 @@
 using System;
+using LocalSaveSystem;
 
 namespace Code.Game.Saves.Characters
 {
-public readonly struct PlayerCharacter
+[SaveModel]
+[SaveVersion(1)]
+public struct PlayerCharacter
 {
-    public string CharacterId { get; }
-    public string CharacterName { get; }
-    public int CharacterLevel { get; }
-    public CharacterState State { get; }
-    public CharacterSkill[] Skills { get; }
-    public CharacterInventory Inventory { get; }
-    public CharacterStats Stats { get; }
-    public CharacterTags Tags { get; }
-    public CharacterView CharacterView { get; }
-
-    public PlayerCharacter(
-        string characterId,
-        string characterName,
-        int characterLevel,
-        CharacterState characterState,
-        CharacterSkill[] skills,
-        CharacterInventory inventory,
-        CharacterStats stats,
-        CharacterTags tags,
-        CharacterView characterView)
-    {
-        CharacterId = characterId ?? string.Empty;
-        CharacterName = characterName ?? string.Empty;
-        State = characterState;
-        CharacterLevel = characterLevel;
-        Skills = skills ?? Array.Empty<CharacterSkill>();
-        Inventory = inventory;
-        Stats = stats;
-        Tags = tags;
-        CharacterView = characterView;
-    }
+    public string CharacterId { get; set; }
+    public string CharacterName { get; set; }
+    public int CharacterLevel { get; set; }
+    public CharacterState State { get; set; }
+    public CharacterSkill[] Skills { get; set; }
+    public CharacterInventory Inventory { get; set; }
+    public CharacterStats Stats { get; set; }
+    public CharacterTags Tags { get; set; }
+    public CharacterView CharacterView { get; set; }
 }
 }

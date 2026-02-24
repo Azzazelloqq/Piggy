@@ -1113,7 +1113,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3000000001, guid: c4d3e2f1061728394a5b6c7d8e9fa1b2, type: 3}
       propertyPath: m_Name
-      value: MainMenuSavesView
+      value: GameProfilesView
       objectReference: {fileID: 0}
     - target: {fileID: 3000000002, guid: c4d3e2f1061728394a5b6c7d8e9fa1b2, type: 3}
       propertyPath: m_Pivot.x
@@ -1219,4 +1219,4 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eb2f909be7c7d3e469f6f14eaa903755, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Code.Game.MainMenu.Window.MainMenuSavesView
+  m_EditorClassIdentifier: Assembly-CSharp::Code.Game.MainMenu.Window.GameProfilesView

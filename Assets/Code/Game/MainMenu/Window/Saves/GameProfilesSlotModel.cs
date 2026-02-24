@@ -20,6 +20,11 @@ public sealed class GameProfilesSlotModel : GameProfilesSlotModelBase
         return UniTask.CompletedTask;
     }
 
+    public override UniTask RequestDeleteAsync()
+    {
+        return UniTask.CompletedTask;
+    }
+
     protected override void OnInitialize()
     {
         _data = default;

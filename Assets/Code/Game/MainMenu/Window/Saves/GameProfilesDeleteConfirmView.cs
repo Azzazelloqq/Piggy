@@ -3,78 +3,52 @@ using System.Threading;
 using System.Threading.Tasks;
 using Code.Game.Async;
 using Cysharp.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Code.Game.MainMenu.Window
 {
-public sealed class GameProfilesSlotView : GameProfilesSlotViewBase
+public sealed class GameProfilesDeleteConfirmView : GameProfilesDeleteConfirmViewBase
 {
+    [Header("Panel")]
     [SerializeField]
-    private Button _button;
-
-    [SerializeField]
-    private TMP_Text _slotLabel;
-
-    [SerializeField]
-    private GameObject _emptyState;
-
-    [SerializeField]
-    private GameObject _filledState;
-
-    [SerializeField]
-    private Image _previewImage;
-
-    [SerializeField]
-    private GameObject _infoRoot;
-
-    [SerializeField]
-    private TMP_Text _slotNameText;
-
-    [SerializeField]
-    private TMP_Text _exitTimeText;
-
-    [SerializeField]
-    private TMP_Text _locationText;
-
-    [SerializeField]
-    private TMP_Text _inGameTimeText;
-
-    [SerializeField]
-    private Button _deleteButton;
+    private RectTransform _panel;
 
     [SerializeField]
     private CanvasGroup _canvasGroup;
 
-    private readonly AsyncEvent _clicked = new();
-    private readonly AsyncEvent _deleteClicked = new();
+    [SerializeField]
+    private bool _disableGameObjectOnHide = true;
+
+    [Header("Buttons")]
+    [SerializeField]
+    private Button _confirmButton;
+
+    [SerializeField]
+    private Button _cancelButton;
+
+    private readonly AsyncEvent _confirmClicked = new();
+    private readonly AsyncEvent _cancelClicked = new();
     private CancellationTokenSource _subscriptionsCts;
     private UniTask _subscriptionsTask;
 
-    public override AsyncEvent Clicked => _clicked;
-    public override AsyncEvent DeleteClicked => _deleteClicked;
+    public override AsyncEvent ConfirmClicked => _confirmClicked;
+    public override AsyncEvent CancelClicked => _cancelClicked;
 
-    public override void SetData(GameProfilesSlotData data)
+    public override void SetVisible(bool isVisible)
     {
-        var slotName = $"Слот {data.Index + 1}";
-        _slotLabel.text = slotName;
-        _slotNameText.text = slotName;
-        _exitTimeText.text = data.Save.ExitTimeText;
-        _locationText.text = data.Save.LastLocationName;
-        _inGameTimeText.text = data.Save.InGameTimeText;
+        _canvasGroup.alpha = isVisible ? 1f : 0f;
+        _canvasGroup.interactable = isVisible;
+        _canvasGroup.blocksRaycasts = isVisible;
 
-        var hasSave = data.HasSave;
-        _emptyState.SetActive(!hasSave);
-        _filledState.SetActive(hasSave);
-        _infoRoot.SetActive(hasSave);
-        _deleteButton.gameObject.SetActive(hasSave);
+        if (_disableGameObjectOnHide)
+        {
+            gameObject.SetActive(isVisible);
+        }
     }
 
     public override void SetInteractable(bool isInteractable)
     {
-        _button.interactable = isInteractable;
-        _deleteButton.interactable = isInteractable;
         _canvasGroup.interactable = isInteractable;
         _canvasGroup.blocksRaycasts = isInteractable;
     }
@@ -100,14 +74,14 @@ public sealed class GameProfilesSlotView : GameProfilesSlotViewBase
         await StopSubscriptionsAsync();
     }
 
-    private UniTask RaiseClicked()
+    private UniTask RaiseConfirmClicked()
     {
-        return _clicked.InvokeAsync();
+        return _confirmClicked.InvokeAsync();
     }
 
-    private UniTask RaiseDeleteClicked()
+    private UniTask RaiseCancelClicked()
     {
-        return _deleteClicked.InvokeAsync();
+        return _cancelClicked.InvokeAsync();
     }
 
     private void SubscribeOnEvents(CancellationToken token)
@@ -151,8 +125,8 @@ public sealed class GameProfilesSlotView : GameProfilesSlotViewBase
     private async UniTask RunButtonSubscriptionsAsync(CancellationToken token)
     {
         await UniTask.WhenAll(
-            WaitForClicksAsync(_button, RaiseClicked, token),
-            WaitForClicksAsync(_deleteButton, RaiseDeleteClicked, token));
+            WaitForClicksAsync(_confirmButton, RaiseConfirmClicked, token),
+            WaitForClicksAsync(_cancelButton, RaiseCancelClicked, token));
     }
 
     private static async UniTask WaitForClicksAsync(

@@ -8,5 +8,6 @@ public abstract class GameProfilesSlotModelBase : Model
     public abstract GameProfilesSlotData Data { get; }
     public abstract void SetData(GameProfilesSlotData data);
     public abstract UniTask RequestSelectAsync();
+    public abstract UniTask RequestDeleteAsync();
 }
 }

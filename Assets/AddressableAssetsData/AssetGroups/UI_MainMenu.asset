@@ -30,6 +30,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c4d3e2f1061728394a5b6c7d8e9fa1b2
+    m_Address: GameProfilesView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d5e4f3061728394a5b6c7d8e9fa1b2c3
+    m_Address: GameProfilesView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 3b805069efce30647bbeb32318c28347, type: 2}
   m_SchemaSet:

@@ -29,6 +29,10 @@ public sealed class GameProfilesView : GameProfilesViewBase
     [SerializeField]
     private Button _backButton;
 
+    [Header("Popups")]
+    [SerializeField]
+    private GameProfilesDeleteConfirmViewBase _deleteConfirmView;
+
     [Header("Slots")]
     [SerializeField]
     private ScrollRect _scrollRect;
@@ -47,6 +51,7 @@ public sealed class GameProfilesView : GameProfilesViewBase
     public override AsyncEvent BackClicked => _backClicked;
     public override RectTransform Panel => _panel;
     public override IReadOnlyList<RectTransform> AnimatedElements => _animatedElements ?? Array.Empty<RectTransform>();
+    public override GameProfilesDeleteConfirmViewBase DeleteConfirmView => _deleteConfirmView;
 
     public override void SetVisible(bool isVisible)
     {

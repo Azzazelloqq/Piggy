@@ -13,9 +13,11 @@ public abstract class GameProfilesSlotPresenterBase
     }
 
     public abstract AsyncEvent<GameProfilesSlotData> Selected { get; }
+    public abstract AsyncEvent<GameProfilesSlotData> DeleteRequested { get; }
     public abstract GameProfilesSlotData Data { get; }
     public abstract void SetData(GameProfilesSlotData data);
     public abstract void SetInteractable(bool isInteractable);
     public abstract UniTask RequestSelectAsync();
+    public abstract UniTask RequestDeleteAsync();
 }
 }

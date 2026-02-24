@@ -35,8 +35,7 @@ public sealed class MenuSubState : GameSubState
 
     private UniTask HandlePlayRequested()
     {
-        Debug.Log("MainMenuState: Play requested.");
-        return UniTask.CompletedTask;
+        return _navigator.NavigateAsync(MainMenuScreen.Saves);
     }
 
     private UniTask HandleSettingsRequested()

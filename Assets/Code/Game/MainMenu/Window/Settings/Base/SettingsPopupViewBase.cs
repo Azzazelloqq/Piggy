@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace Code.Game.MainMenu.Window
 {
-public abstract class MainMenuSettingsViewBase
-    : ViewMonoBehaviour<MainMenuSettingsPresenterBase>
+public abstract class SettingsPopupViewBase
+    : ViewMonoBehaviour<SettingsPopupPresenterBase>
 {
     public AsyncEvent BackClicked { get; } = new AsyncEvent();
     public AsyncEvent ApplyClicked { get; } = new AsyncEvent();

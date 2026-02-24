@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 namespace Code.Game.MainMenu.Window
 {
-    public sealed class MainMenuSettingsModel : MainMenuSettingsModelBase
+    public sealed class SettingsPopupModel : SettingsPopupModelBase
     {
         private bool _isVisible;
 

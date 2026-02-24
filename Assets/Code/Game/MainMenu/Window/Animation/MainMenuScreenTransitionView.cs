@@ -10,18 +10,21 @@ namespace Code.Game.MainMenu.Window
             MainMenuViewBase.LayoutData layout,
             PanelHandle menuPanel,
             PanelHandle settingsPanel,
-            PanelHandle exitPanel)
+            PanelHandle exitPanel,
+            PanelHandle savesPanel)
         {
             Layout = layout ?? throw new ArgumentNullException(nameof(layout));
             MenuPanel = menuPanel;
             SettingsPanel = settingsPanel;
             ExitPanel = exitPanel;
+            SavesPanel = savesPanel;
         }
 
         public MainMenuViewBase.LayoutData Layout { get; }
         public PanelHandle MenuPanel { get; }
         public PanelHandle SettingsPanel { get; }
         public PanelHandle ExitPanel { get; }
+        public PanelHandle SavesPanel { get; }
 
         public readonly struct PanelHandle
         {

@@ -5,7 +5,7 @@ using MVP;
 
 namespace Code.Game.MainMenu.Window
 {
-public abstract class MainMenuExitConfirmModelBase : Model
+public abstract class ExitConfirmPopupModelBase : Model
 {
     public event Action<bool> VisibilityChanged;
     public AsyncEvent ConfirmRequested { get; } = new AsyncEvent();

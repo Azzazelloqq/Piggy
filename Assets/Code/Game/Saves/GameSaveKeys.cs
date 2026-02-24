@@ -1,5 +1,4 @@
 using System;
-using Code.Game.Saves.Characters;
 using Code.Game.Saves.Profile;
 using LocalSaveSystem;
 
@@ -7,16 +6,16 @@ namespace Code.Game.Saves
 {
     public static class GameSaveKeys
     {
-        public static readonly SaveKey<GameProfileSave> GameProfile = new("game_profile", CreateDefaultProfile);
+        public static readonly SaveKey<PlayerProfilesListSave> GameProfiles = new("game_profiles", CreateDefaultProfile);
 
         public static readonly ISaveKey[] All =
         {
-            GameProfile
+            GameProfiles
         };
 
-        private static GameProfileSave CreateDefaultProfile()
+        private static PlayerProfilesListSave CreateDefaultProfile()
         {
-            return new GameProfileSave(Array.Empty<PlayerCharacter>(), 0);
+            return new PlayerProfilesListSave(Array.Empty<GameProfileSave>());
         }
     }
 }

@@ -4,6 +4,7 @@ public enum MainMenuScreen
 {
     Menu = 0,
     Settings = 1,
-    ExitConfirm = 2
+    ExitConfirm = 2,
+    Saves = 3
 }
 }

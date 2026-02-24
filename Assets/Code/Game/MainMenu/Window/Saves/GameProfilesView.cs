@@ -2,18 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Code.Game.Async;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Code.Game.MainMenu.Window
 {
-public sealed class MainMenuView : MainMenuViewBase
+public sealed class GameProfilesView : GameProfilesViewBase
 {
-    [Header("Layout")]
-    [SerializeField]
-    private LayoutData _layout = new LayoutData();
-
     [Header("Panel")]
     [SerializeField]
     private RectTransform _panel;
@@ -22,42 +19,34 @@ public sealed class MainMenuView : MainMenuViewBase
     [SerializeField]
     private RectTransform[] _animatedElements;
 
-    [Header("Child Views")]
-    [SerializeField]
-    private SettingsPopupViewBase _settingsPopupView;
-
-    [SerializeField]
-    private ExitConfirmPopupViewBase _exitConfirmPopupView;
-
-    [SerializeField]
-    private GameProfilesViewBase _savesView;
-
     [SerializeField]
     private CanvasGroup _canvasGroup;
 
     [SerializeField]
     private bool _disableGameObjectOnHide = true;
 
-    [Header("Buttons")]
+    [Header("Navigation")]
     [SerializeField]
-    private Button _playButton;
+    private Button _backButton;
+
+    [Header("Slots")]
+    [SerializeField]
+    private ScrollRect _scrollRect;
 
     [SerializeField]
-    private Button _settingsButton;
+    private RectTransform _contentRoot;
 
     [SerializeField]
-    private Button _exitButton;
+    private GameProfilesSlotViewBase _slotPrefab;
 
+    private readonly List<GameProfilesSlotViewBase> _slotViews = new();
+    private readonly AsyncEvent _backClicked = new();
     private CancellationTokenSource _subscriptionsCts;
     private UniTask _subscriptionsTask;
 
+    public override AsyncEvent BackClicked => _backClicked;
     public override RectTransform Panel => _panel;
-    public override LayoutData Layout => _layout;
     public override IReadOnlyList<RectTransform> AnimatedElements => _animatedElements ?? Array.Empty<RectTransform>();
-
-    internal override SettingsPopupViewBase SettingsPopupView => _settingsPopupView;
-    internal override ExitConfirmPopupViewBase ExitConfirmPopupView => _exitConfirmPopupView;
-    internal override GameProfilesViewBase SavesView => _savesView;
 
     public override void SetVisible(bool isVisible)
     {
@@ -65,9 +54,9 @@ public sealed class MainMenuView : MainMenuViewBase
         _canvasGroup.interactable = isVisible;
         _canvasGroup.blocksRaycasts = isVisible;
 
-        if (_disableGameObjectOnHide && _panel.gameObject != gameObject)
+        if (_disableGameObjectOnHide)
         {
-            _panel.gameObject.SetActive(isVisible);
+            gameObject.SetActive(isVisible);
         }
     }
 
@@ -77,15 +66,22 @@ public sealed class MainMenuView : MainMenuViewBase
         _canvasGroup.blocksRaycasts = isInteractable;
     }
 
+    public override IReadOnlyList<GameProfilesSlotViewBase> EnsureSlotViews(int count)
+    {
+        var root = ResolveContentRoot();
+        EnsureSlotCount(count, root);
+        _scrollRect.verticalNormalizedPosition = 1f;
+        return _slotViews;
+    }
+
     protected override void OnInitialize()
     {
-        SubscribeOnEvents();
+        SubscribeOnEvents(default);
     }
 
     protected override ValueTask OnInitializeAsync(CancellationToken token)
     {
         SubscribeOnEvents(token);
-        
         return default;
     }
 
@@ -99,9 +95,34 @@ public sealed class MainMenuView : MainMenuViewBase
         await StopSubscriptionsAsync();
     }
 
-    private void SubscribeOnEvents()
+    private RectTransform ResolveContentRoot()
     {
-        SubscribeOnEvents(default);
+        if (_contentRoot == null)
+        {
+            _contentRoot = _scrollRect.content;
+        }
+        return _contentRoot;
+    }
+
+    private void EnsureSlotCount(int count, RectTransform root)
+    {
+        while (_slotViews.Count < count)
+        {
+            var instance = Instantiate(_slotPrefab, root, false);
+            _slotViews.Add(instance);
+        }
+
+        while (_slotViews.Count > count)
+        {
+            var lastIndex = _slotViews.Count - 1;
+            Destroy(_slotViews[lastIndex].gameObject);
+            _slotViews.RemoveAt(lastIndex);
+        }
+    }
+
+    private UniTask RaiseBackClicked()
+    {
+        return _backClicked.InvokeAsync();
     }
 
     private void SubscribeOnEvents(CancellationToken token)
@@ -144,13 +165,13 @@ public sealed class MainMenuView : MainMenuViewBase
 
     private async UniTask RunButtonSubscriptionsAsync(CancellationToken token)
     {
-        await UniTask.WhenAll(
-            WaitForClicksAsync(_playButton, RaisePlayClicked, token),
-            WaitForClicksAsync(_settingsButton, RaiseSettingsClicked, token),
-            WaitForClicksAsync(_exitButton, RaiseExitClicked, token));
+        await WaitForClicksAsync(_backButton, RaiseBackClicked, token);
     }
 
-    private static async UniTask WaitForClicksAsync(Button button, Func<UniTask> onClick, CancellationToken token)
+    private static async UniTask WaitForClicksAsync(
+        Button button,
+        Func<UniTask> onClick,
+        CancellationToken token)
     {
         try
         {

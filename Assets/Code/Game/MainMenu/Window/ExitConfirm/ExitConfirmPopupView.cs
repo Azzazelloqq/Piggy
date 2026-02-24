@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Code.Game.MainMenu.Window
 {
-public sealed class MainMenuExitConfirmView : MainMenuExitConfirmViewBase
+public sealed class ExitConfirmPopupView : ExitConfirmPopupViewBase
 {
     [Header("Panel")]
     [SerializeField]

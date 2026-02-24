@@ -36,6 +36,9 @@ public abstract class MainMenuViewBase
         [SerializeField]
         private Vector2 _exitShown;
 
+        [SerializeField]
+        private Vector2 _savesShown;
+
         public float TransitionDuration => _transitionDuration;
         public float ShowOvershoot => _showOvershoot;
         public float OffscreenPadding => _offscreenPadding;
@@ -43,6 +46,7 @@ public abstract class MainMenuViewBase
         public Vector2 MenuShown => _menuShown;
         public Vector2 SettingsShown => _settingsShown;
         public Vector2 ExitShown => _exitShown;
+        public Vector2 SavesShown => _savesShown;
     }
 
     public AsyncEvent PlayClicked { get; } = new AsyncEvent();
@@ -54,8 +58,9 @@ public abstract class MainMenuViewBase
     public abstract IReadOnlyList<RectTransform> AnimatedElements { get; }
     public abstract void SetVisible(bool isVisible);
     public abstract void SetInteractable(bool isInteractable);
-    internal abstract MainMenuSettingsViewBase SettingsView { get; }
-    internal abstract MainMenuExitConfirmViewBase ExitConfirmView { get; }
+    internal abstract SettingsPopupViewBase SettingsPopupView { get; }
+    internal abstract ExitConfirmPopupViewBase ExitConfirmPopupView { get; }
+    internal abstract GameProfilesViewBase SavesView { get; }
 
     protected UniTask RaisePlayClicked()
     {

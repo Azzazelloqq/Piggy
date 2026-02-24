@@ -2,34 +2,42 @@ using System.Threading;
 using System.Threading.Tasks;
 using Code.Game.Async;
 using Cysharp.Threading.Tasks;
+using LocalSaveSystem;
 
 namespace Code.Game.MainMenu.Window
 {
 public sealed class MainMenuPresenter : MainMenuPresenterBase
 {
-    private readonly MainMenuSettingsPresenter _settingsPresenter;
-    private readonly MainMenuExitConfirmPresenter _exitPresenter;
+    private readonly SettingsPopupPresenter _settingsPopupPresenter;
+    private readonly ExitConfirmPopupPresenter _exitPopupPresenter;
+    private readonly GameProfilesPresenter _savesPresenter;
     private readonly MainMenuScreenTransitionPresenter _transitionPresenter;
 
     public AsyncEvent SettingsBackRequested { get; } = new();
     public AsyncEvent SettingsApplyRequested { get; } = new();
     public AsyncEvent ExitConfirmed { get; } = new();
     public AsyncEvent ExitCanceled { get; } = new();
+    public AsyncEvent SavesBackRequested { get; } = new();
+    public AsyncEvent<GameProfilesSlotData> SaveSlotSelected { get; } = new();
 
-    public MainMenuPresenter(MainMenuViewBase view, MainMenuModelBase model)
+    public MainMenuPresenter(MainMenuViewBase view, MainMenuModelBase model, ISaveStore saveStore)
         : base(view, model)
     {
-        var settingsViewBase = view.SettingsView;
-        var exitConfirmViewBase = view.ExitConfirmView;
+        var settingsViewBase = view.SettingsPopupView;
+        var exitConfirmViewBase = view.ExitConfirmPopupView;
+        var savesViewBase = view.SavesView;
 
-        var settingsModel = new MainMenuSettingsModel();
-        var exitModel = new MainMenuExitConfirmModel();
+        var settingsModel = new SettingsPopupModel();
+        var exitModel = new ExitConfirmPopupModel();
+        var savesModel = new GameProfilesModel(saveStore);
 
-        _settingsPresenter = new MainMenuSettingsPresenter(settingsViewBase, settingsModel);
-        _exitPresenter = new MainMenuExitConfirmPresenter(exitConfirmViewBase, exitModel);
+        _settingsPopupPresenter = new SettingsPopupPresenter(settingsViewBase, settingsModel);
+        _exitPopupPresenter = new ExitConfirmPopupPresenter(exitConfirmViewBase, exitModel);
+        _savesPresenter = new GameProfilesPresenter(savesViewBase, savesModel);
 
-        compositeDisposable.AddDisposable(_settingsPresenter);
-        compositeDisposable.AddDisposable(_exitPresenter);
+        compositeDisposable.AddDisposable(_settingsPopupPresenter);
+        compositeDisposable.AddDisposable(_exitPopupPresenter);
+        compositeDisposable.AddDisposable(_savesPresenter);
 
         var menuPanel = new MainMenuScreenTransitionView.PanelHandle(
             view.Panel,
@@ -39,17 +47,28 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
             view.AnimatedElements);
         var settingsPanel = new MainMenuScreenTransitionView.PanelHandle(
             settingsViewBase.Panel,
-            _settingsPresenter.Show,
-            _settingsPresenter.Hide,
+            _settingsPopupPresenter.Show,
+            _settingsPopupPresenter.Hide,
             settingsViewBase.SetInteractable,
             settingsViewBase.AnimatedElements);
         var exitPanel = new MainMenuScreenTransitionView.PanelHandle(
             exitConfirmViewBase.Panel,
-            _exitPresenter.Show,
-            _exitPresenter.Hide,
+            _exitPopupPresenter.Show,
+            _exitPopupPresenter.Hide,
             exitConfirmViewBase.SetInteractable,
             exitConfirmViewBase.AnimatedElements);
-        var transitionView = new MainMenuScreenTransitionView(view.Layout, menuPanel, settingsPanel, exitPanel);
+        var savesPanel = new MainMenuScreenTransitionView.PanelHandle(
+            savesViewBase.Panel,
+            _savesPresenter.Show,
+            _savesPresenter.Hide,
+            savesViewBase.SetInteractable,
+            savesViewBase.AnimatedElements);
+        var transitionView = new MainMenuScreenTransitionView(
+            view.Layout,
+            menuPanel,
+            settingsPanel,
+            exitPanel,
+            savesPanel);
         _transitionPresenter = new MainMenuScreenTransitionPresenter(
             transitionView,
             new MainMenuScreenTransitionModel());
@@ -69,8 +88,9 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
     {
         SubscribeOnEvents();
 
-        _settingsPresenter.Initialize();
-        _exitPresenter.Initialize();
+        _settingsPopupPresenter.Initialize();
+        _exitPopupPresenter.Initialize();
+        _savesPresenter.Initialize();
 
         view.SetVisible(model.IsVisible);
     }
@@ -79,8 +99,9 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
     {
         SubscribeOnEvents();
 
-        await _settingsPresenter.InitializeAsync(token);
-        await _exitPresenter.InitializeAsync(token);
+        await _settingsPopupPresenter.InitializeAsync(token);
+        await _exitPopupPresenter.InitializeAsync(token);
+        await _savesPresenter.InitializeAsync(token);
 
         view.SetVisible(model.IsVisible);
     }
@@ -89,16 +110,18 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
     {
         UnsubscribeOneEvents();
 
-        _settingsPresenter.Dispose();
-        _exitPresenter.Dispose();
+        _settingsPopupPresenter.Dispose();
+        _exitPopupPresenter.Dispose();
+        _savesPresenter.Dispose();
     }
 
     protected override ValueTask OnDisposeAsync(CancellationToken token)
     {
         UnsubscribeOneEvents();
 
-        _settingsPresenter.Dispose();
-        _exitPresenter.Dispose();
+        _settingsPopupPresenter.Dispose();
+        _exitPopupPresenter.Dispose();
+        _savesPresenter.Dispose();
 
         return default;
     }
@@ -106,11 +129,13 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
     public override void Show()
     {
         model.Show();
+        view.SetVisible(model.IsVisible);
     }
 
     public override void Hide()
     {
         model.Hide();
+        view.SetVisible(model.IsVisible);
     }
 
     public override UniTask RequestPlayAsync()
@@ -141,11 +166,6 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
     private UniTask HandleExitClicked()
     {
         return model.RequestExitAsync();
-    }
-
-    private void HandleVisibilityChanged(bool isVisible)
-    {
-        view.SetVisible(isVisible);
     }
 
     private UniTask HandlePlayRequested()
@@ -183,22 +203,34 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
         return ExitCanceled.InvokeAsync();
     }
 
+    private UniTask HandleSavesBackRequested()
+    {
+        return SavesBackRequested.InvokeAsync();
+    }
+
+    private UniTask HandleSaveSlotSelected(GameProfilesSlotData slot)
+    {
+        return SaveSlotSelected.InvokeAsync(slot);
+    }
+
     private void SubscribeOnEvents()
     {
         view.PlayClicked.Subscribe(HandlePlayClicked);
         view.SettingsClicked.Subscribe(HandleSettingsClicked);
         view.ExitClicked.Subscribe(HandleExitClicked);
 
-        model.VisibilityChanged += HandleVisibilityChanged;
         model.PlayRequested.Subscribe(HandlePlayRequested);
         model.SettingsRequested.Subscribe(HandleSettingsRequested);
         model.ExitRequested.Subscribe(HandleExitRequested);
 
-        _settingsPresenter.BackRequested.Subscribe(HandleSettingsBackRequested);
-        _settingsPresenter.ApplyRequested.Subscribe(HandleSettingsApplyRequested);
+        _settingsPopupPresenter.BackRequested.Subscribe(HandleSettingsBackRequested);
+        _settingsPopupPresenter.ApplyRequested.Subscribe(HandleSettingsApplyRequested);
 
-        _exitPresenter.Confirmed.Subscribe(HandleExitConfirmed);
-        _exitPresenter.Canceled.Subscribe(HandleExitCanceled);
+        _exitPopupPresenter.Confirmed.Subscribe(HandleExitConfirmed);
+        _exitPopupPresenter.Canceled.Subscribe(HandleExitCanceled);
+
+        _savesPresenter.BackRequested.Subscribe(HandleSavesBackRequested);
+        _savesPresenter.SlotSelected.Subscribe(HandleSaveSlotSelected);
     }
 
     private void UnsubscribeOneEvents()
@@ -207,16 +239,18 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
         view.SettingsClicked.Unsubscribe(HandleSettingsClicked);
         view.ExitClicked.Unsubscribe(HandleExitClicked);
 
-        model.VisibilityChanged -= HandleVisibilityChanged;
         model.PlayRequested.Unsubscribe(HandlePlayRequested);
         model.SettingsRequested.Unsubscribe(HandleSettingsRequested);
         model.ExitRequested.Unsubscribe(HandleExitRequested);
 
-        _settingsPresenter.BackRequested.Unsubscribe(HandleSettingsBackRequested);
-        _settingsPresenter.ApplyRequested.Unsubscribe(HandleSettingsApplyRequested);
+        _settingsPopupPresenter.BackRequested.Unsubscribe(HandleSettingsBackRequested);
+        _settingsPopupPresenter.ApplyRequested.Unsubscribe(HandleSettingsApplyRequested);
 
-        _exitPresenter.Confirmed.Unsubscribe(HandleExitConfirmed);
-        _exitPresenter.Canceled.Unsubscribe(HandleExitCanceled);
+        _exitPopupPresenter.Confirmed.Unsubscribe(HandleExitConfirmed);
+        _exitPopupPresenter.Canceled.Unsubscribe(HandleExitCanceled);
+
+        _savesPresenter.BackRequested.Unsubscribe(HandleSavesBackRequested);
+        _savesPresenter.SlotSelected.Unsubscribe(HandleSaveSlotSelected);
     }
 
 }

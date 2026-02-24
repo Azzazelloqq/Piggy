@@ -8,8 +8,8 @@ using UnityEngine;
 
 namespace Code.Game.MainMenu.Window
 {
-public abstract class MainMenuExitConfirmViewBase
-    : ViewMonoBehaviour<MainMenuExitConfirmPresenterBase>
+public abstract class ExitConfirmPopupViewBase
+    : ViewMonoBehaviour<ExitConfirmPopupPresenterBase>
 {
     public AsyncEvent ConfirmClicked { get; } = new AsyncEvent();
     public AsyncEvent CancelClicked { get; } = new AsyncEvent();

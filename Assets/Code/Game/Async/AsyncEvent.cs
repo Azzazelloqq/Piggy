@@ -66,4 +66,67 @@ public sealed class AsyncEvent
         }
     }
 }
+
+public sealed class AsyncEvent<T>
+{
+    private readonly List<Func<T, UniTask>> _handlers = new();
+
+    public void Subscribe(Func<T, UniTask> handler)
+    {
+        if (handler == null)
+        {
+            throw new ArgumentNullException(nameof(handler));
+        }
+
+        _handlers.Add(handler);
+    }
+
+    public void Unsubscribe(Func<T, UniTask> handler)
+    {
+        if (handler == null)
+        {
+            return;
+        }
+
+        _handlers.Remove(handler);
+    }
+
+    public async UniTask InvokeAsync(T value)
+    {
+        if (_handlers.Count == 0)
+        {
+            return;
+        }
+
+        var snapshot = _handlers.ToArray();
+        foreach (var handler in snapshot)
+        {
+            await handler(value);
+        }
+    }
+
+    public async UniTask InvokeSafeAsync(T value, Action<Exception> onError)
+    {
+        if (_handlers.Count == 0)
+        {
+            return;
+        }
+
+        var snapshot = _handlers.ToArray();
+        foreach (var handler in snapshot)
+        {
+            try
+            {
+                await handler(value);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception exception)
+            {
+                onError?.Invoke(exception);
+            }
+        }
+    }
+}
 }

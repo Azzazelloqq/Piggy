@@ -4,21 +4,23 @@ using Cysharp.Threading.Tasks;
 
 namespace Code.Game.MainMenu.Window
 {
-    public sealed class MainMenuSettingsPresenter : MainMenuSettingsPresenterBase
+    public sealed class SettingsPopupPresenter : SettingsPopupPresenterBase
     {
-        public MainMenuSettingsPresenter(MainMenuSettingsViewBase view, MainMenuSettingsModelBase model)
-            : base(view, model)
+        public SettingsPopupPresenter(SettingsPopupViewBase popupView, SettingsPopupModelBase popupModel)
+            : base(popupView, popupModel)
         {
         }
 
         public override void Show()
         {
             model.Show();
+            view.SetVisible(model.IsVisible);
         }
 
         public override void Hide()
         {
             model.Hide();
+            view.SetVisible(model.IsVisible);
         }
 
         public override UniTask RequestBackAsync()
@@ -36,7 +38,6 @@ namespace Code.Game.MainMenu.Window
             view.BackClicked.Subscribe(HandleBackClicked);
             view.ApplyClicked.Subscribe(HandleApplyClicked);
 
-            model.VisibilityChanged += HandleVisibilityChanged;
             model.BackRequested.Subscribe(HandleBackRequested);
             model.ApplyRequested.Subscribe(HandleApplyRequested);
 
@@ -48,7 +49,6 @@ namespace Code.Game.MainMenu.Window
             view.BackClicked.Subscribe(HandleBackClicked);
             view.ApplyClicked.Subscribe(HandleApplyClicked);
 
-            model.VisibilityChanged += HandleVisibilityChanged;
             model.BackRequested.Subscribe(HandleBackRequested);
             model.ApplyRequested.Subscribe(HandleApplyRequested);
 
@@ -62,7 +62,6 @@ namespace Code.Game.MainMenu.Window
             view.BackClicked.Unsubscribe(HandleBackClicked);
             view.ApplyClicked.Unsubscribe(HandleApplyClicked);
 
-            model.VisibilityChanged -= HandleVisibilityChanged;
             model.BackRequested.Unsubscribe(HandleBackRequested);
             model.ApplyRequested.Unsubscribe(HandleApplyRequested);
         }
@@ -72,7 +71,6 @@ namespace Code.Game.MainMenu.Window
             view.BackClicked.Unsubscribe(HandleBackClicked);
             view.ApplyClicked.Unsubscribe(HandleApplyClicked);
 
-            model.VisibilityChanged -= HandleVisibilityChanged;
             model.BackRequested.Unsubscribe(HandleBackRequested);
             model.ApplyRequested.Unsubscribe(HandleApplyRequested);
 
@@ -87,11 +85,6 @@ namespace Code.Game.MainMenu.Window
         private UniTask HandleApplyClicked()
         {
             return model.RequestApplyAsync();
-        }
-
-        private void HandleVisibilityChanged(bool isVisible)
-        {
-            view.SetVisible(isVisible);
         }
 
         private UniTask HandleBackRequested()

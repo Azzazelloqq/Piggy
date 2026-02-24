@@ -5,7 +5,7 @@ using MVP;
 
 namespace Code.Game.MainMenu.Window
 {
-public abstract class MainMenuSettingsModelBase : Model
+public abstract class SettingsPopupModelBase : Model
 {
     public event Action<bool> VisibilityChanged;
     public AsyncEvent BackRequested { get; } = new AsyncEvent();

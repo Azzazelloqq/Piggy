@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 namespace Code.Game.MainMenu.Window
 {
-public sealed class MainMenuExitConfirmModel : MainMenuExitConfirmModelBase
+public sealed class ExitConfirmPopupModel : ExitConfirmPopupModelBase
 {
     private bool _isVisible;
 

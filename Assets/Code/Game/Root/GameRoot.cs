@@ -40,6 +40,8 @@ public class GameRoot : MonoBehaviourDisposable
 
         _inGameLogger = new UnityInGameLogger();
         _gameDiContainer.RegisterAsSingleton<IInGameLogger>(_inGameLogger);
+        
+        InitializeSaveSystem();
 
         var dispatcherObject = new GameObject();
         var unityDispatcherBehaviour = dispatcherObject.AddComponent<UnityDispatcherBehaviour>();
@@ -59,7 +61,6 @@ public class GameRoot : MonoBehaviourDisposable
         _stateMachine.Register(mainMenuState);
 
         _gameDiContainer.RegisterAsSingleton(_stateMachine);
-        InitializeSaveSystem();
 
         try
         {

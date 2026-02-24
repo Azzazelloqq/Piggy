@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Code.Game.MainMenu.Window
 {
-    public sealed class MainMenuSettingsView : MainMenuSettingsViewBase
+    public sealed class SettingsPopupView : SettingsPopupViewBase
     {
         [Header("Panel")]
         [SerializeField]

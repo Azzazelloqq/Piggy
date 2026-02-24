@@ -4,23 +4,25 @@ using Cysharp.Threading.Tasks;
 
 namespace Code.Game.MainMenu.Window
 {
-public sealed class MainMenuExitConfirmPresenter : MainMenuExitConfirmPresenterBase
+public sealed class ExitConfirmPopupPresenter : ExitConfirmPopupPresenterBase
 {
-    public MainMenuExitConfirmPresenter(
-        MainMenuExitConfirmViewBase view,
-        MainMenuExitConfirmModelBase model)
-        : base(view, model)
+    public ExitConfirmPopupPresenter(
+        ExitConfirmPopupViewBase popupView,
+        ExitConfirmPopupModelBase popupModel)
+        : base(popupView, popupModel)
     {
     }
 
     public override void Show()
     {
         model.Show();
+        view.SetVisible(model.IsVisible);
     }
 
     public override void Hide()
     {
         model.Hide();
+        view.SetVisible(model.IsVisible);
     }
 
     public override UniTask ConfirmExitAsync()
@@ -69,11 +71,6 @@ public sealed class MainMenuExitConfirmPresenter : MainMenuExitConfirmPresenterB
         return model.RequestCancelAsync();
     }
 
-    private void HandleVisibilityChanged(bool isVisible)
-    {
-        view.SetVisible(isVisible);
-    }
-
     private UniTask HandleConfirmRequested()
     {
         return NotifyConfirmedAsync();
@@ -89,7 +86,6 @@ public sealed class MainMenuExitConfirmPresenter : MainMenuExitConfirmPresenterB
         view.ConfirmClicked.Subscribe(HandleConfirmClicked);
         view.CancelClicked.Subscribe(HandleCancelClicked);
 
-        model.VisibilityChanged += HandleVisibilityChanged;
         model.ConfirmRequested.Subscribe(HandleConfirmRequested);
         model.CancelRequested.Subscribe(HandleCancelRequested);
     }
@@ -99,7 +95,6 @@ public sealed class MainMenuExitConfirmPresenter : MainMenuExitConfirmPresenterB
         view.ConfirmClicked.Unsubscribe(HandleConfirmClicked);
         view.CancelClicked.Unsubscribe(HandleCancelClicked);
 
-        model.VisibilityChanged -= HandleVisibilityChanged;
         model.ConfirmRequested.Unsubscribe(HandleConfirmRequested);
         model.CancelRequested.Unsubscribe(HandleCancelRequested);
     }

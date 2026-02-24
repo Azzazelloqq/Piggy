@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Code.Game.MainMenu.Window;
 using InGameLogger;
 using LightDI.Runtime;
+using LocalSaveSystem;
 using Piggy.Code.StateMachine;
 using Object = UnityEngine.Object;
 
@@ -12,18 +13,21 @@ namespace Code.Game.MainMenu.States
 public sealed class MainMenuState : GameState, IMainMenuNavigator
 {
     private readonly IInGameLogger _logger;
+    private readonly ISaveStore _saveStore;
     private MainMenuPresenter _menuPresenter;
 
     private MainMenuViewBase _menuView;
 
     private CancellationToken _stateToken;
 
-    public MainMenuState([Inject] IInGameLogger logger)
+    public MainMenuState([Inject] IInGameLogger logger, [Inject] ISaveStore saveStore)
     {
         _logger = logger;
+        _saveStore = saveStore;
         SubStateMachine.Register(new MenuSubState());
         SubStateMachine.Register(new SettingsSubState());
         SubStateMachine.Register(new ExitConfirmSubState());
+        SubStateMachine.Register(new SavesSubState());
     }
 
     protected override async UniTask OnEnterAsync<T>(T gameStateContext, CancellationToken token)
@@ -38,7 +42,7 @@ public sealed class MainMenuState : GameState, IMainMenuNavigator
         _menuView = Object.Instantiate(uiContext.MainMenuPrefab, mainParent, false);
 
         var menuModel = new MainMenuModel();
-        _menuPresenter = new MainMenuPresenter(_menuView, menuModel);
+        _menuPresenter = new MainMenuPresenter(_menuView, menuModel, _saveStore);
 
         await _menuPresenter.InitializeAsync(token);
 
@@ -95,6 +99,9 @@ public sealed class MainMenuState : GameState, IMainMenuNavigator
                     BuildSubStateContext(screen), cancellationToken: _stateToken);
             case MainMenuScreen.ExitConfirm:
                 return SubStateMachine.ChangeStateAsync<ExitConfirmSubState, MainMenuSubStateContext>(
+                    BuildSubStateContext(screen), cancellationToken: _stateToken);
+            case MainMenuScreen.Saves:
+                return SubStateMachine.ChangeStateAsync<SavesSubState, MainMenuSubStateContext>(
                     BuildSubStateContext(screen), cancellationToken: _stateToken);
             default:
                 return SubStateMachine.ChangeStateAsync<MenuSubState, MainMenuSubStateContext>(

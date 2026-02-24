@@ -1,91 +1,59 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Code.Game.Async;
 using Cysharp.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Code.Game.MainMenu.Window
 {
-public sealed class MainMenuView : MainMenuViewBase
+public sealed class GameProfilesSlotView : GameProfilesSlotViewBase
 {
-    [Header("Layout")]
     [SerializeField]
-    private LayoutData _layout = new LayoutData();
-
-    [Header("Panel")]
-    [SerializeField]
-    private RectTransform _panel;
-
-    [Header("Content Animation")]
-    [SerializeField]
-    private RectTransform[] _animatedElements;
-
-    [Header("Child Views")]
-    [SerializeField]
-    private SettingsPopupViewBase _settingsPopupView;
+    private Button _button;
 
     [SerializeField]
-    private ExitConfirmPopupViewBase _exitConfirmPopupView;
+    private TMP_Text _slotLabel;
 
     [SerializeField]
-    private GameProfilesViewBase _savesView;
+    private GameObject _emptyState;
+
+    [SerializeField]
+    private GameObject _filledState;
 
     [SerializeField]
     private CanvasGroup _canvasGroup;
 
-    [SerializeField]
-    private bool _disableGameObjectOnHide = true;
-
-    [Header("Buttons")]
-    [SerializeField]
-    private Button _playButton;
-
-    [SerializeField]
-    private Button _settingsButton;
-
-    [SerializeField]
-    private Button _exitButton;
-
+    private readonly AsyncEvent _clicked = new();
     private CancellationTokenSource _subscriptionsCts;
     private UniTask _subscriptionsTask;
 
-    public override RectTransform Panel => _panel;
-    public override LayoutData Layout => _layout;
-    public override IReadOnlyList<RectTransform> AnimatedElements => _animatedElements ?? Array.Empty<RectTransform>();
+    public override AsyncEvent Clicked => _clicked;
 
-    internal override SettingsPopupViewBase SettingsPopupView => _settingsPopupView;
-    internal override ExitConfirmPopupViewBase ExitConfirmPopupView => _exitConfirmPopupView;
-    internal override GameProfilesViewBase SavesView => _savesView;
-
-    public override void SetVisible(bool isVisible)
+    public override void SetData(GameProfilesSlotData data)
     {
-        _canvasGroup.alpha = isVisible ? 1f : 0f;
-        _canvasGroup.interactable = isVisible;
-        _canvasGroup.blocksRaycasts = isVisible;
-
-        if (_disableGameObjectOnHide && _panel.gameObject != gameObject)
-        {
-            _panel.gameObject.SetActive(isVisible);
-        }
+        _slotLabel.text = (data.Index + 1).ToString();
+        _emptyState.SetActive(!data.HasSave);
+        _filledState.SetActive(data.HasSave);
     }
 
     public override void SetInteractable(bool isInteractable)
     {
+        _button.interactable = isInteractable;
         _canvasGroup.interactable = isInteractable;
         _canvasGroup.blocksRaycasts = isInteractable;
     }
 
     protected override void OnInitialize()
     {
-        SubscribeOnEvents();
+        SubscribeOnEvents(default);
     }
 
     protected override ValueTask OnInitializeAsync(CancellationToken token)
     {
         SubscribeOnEvents(token);
-        
         return default;
     }
 
@@ -99,9 +67,9 @@ public sealed class MainMenuView : MainMenuViewBase
         await StopSubscriptionsAsync();
     }
 
-    private void SubscribeOnEvents()
+    private UniTask RaiseClicked()
     {
-        SubscribeOnEvents(default);
+        return _clicked.InvokeAsync();
     }
 
     private void SubscribeOnEvents(CancellationToken token)
@@ -144,13 +112,13 @@ public sealed class MainMenuView : MainMenuViewBase
 
     private async UniTask RunButtonSubscriptionsAsync(CancellationToken token)
     {
-        await UniTask.WhenAll(
-            WaitForClicksAsync(_playButton, RaisePlayClicked, token),
-            WaitForClicksAsync(_settingsButton, RaiseSettingsClicked, token),
-            WaitForClicksAsync(_exitButton, RaiseExitClicked, token));
+        await WaitForClicksAsync(_button, RaiseClicked, token);
     }
 
-    private static async UniTask WaitForClicksAsync(Button button, Func<UniTask> onClick, CancellationToken token)
+    private static async UniTask WaitForClicksAsync(
+        Button button,
+        Func<UniTask> onClick,
+        CancellationToken token)
     {
         try
         {

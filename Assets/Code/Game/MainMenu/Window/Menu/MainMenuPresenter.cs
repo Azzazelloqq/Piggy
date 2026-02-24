@@ -69,9 +69,11 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
             settingsPanel,
             exitPanel,
             savesPanel);
+        var transitionAnimator = new MainMenuEdgeSlideTransitionAnimator();
         _transitionPresenter = new MainMenuScreenTransitionPresenter(
             transitionView,
-            new MainMenuScreenTransitionModel());
+            new MainMenuScreenTransitionModel(),
+            transitionAnimator);
     }
 
     public void ApplyScreenLayoutImmediate(MainMenuScreen screen)

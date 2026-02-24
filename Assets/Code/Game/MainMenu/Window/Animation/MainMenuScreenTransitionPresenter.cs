@@ -9,32 +9,35 @@ public sealed class MainMenuScreenTransitionPresenter
 {
     private readonly MainMenuScreenTransitionView _view;
     private readonly MainMenuScreenTransitionModel _model;
+    private readonly IMainMenuScreenTransitionAnimator _animator;
 
     public MainMenuScreenTransitionPresenter(
         MainMenuScreenTransitionView view,
-        MainMenuScreenTransitionModel model)
+        MainMenuScreenTransitionModel model,
+        IMainMenuScreenTransitionAnimator animator)
     {
         _view = view ?? throw new ArgumentNullException(nameof(view));
         _model = model ?? throw new ArgumentNullException(nameof(model));
+        _animator = animator ?? throw new ArgumentNullException(nameof(animator));
     }
 
     public void ApplyScreenLayoutImmediate(MainMenuScreen screen)
     {
         EnsureLayoutCaptured();
 
-        ApplyPanelImmediate(
+        _animator.ApplyPanelImmediate(
             _view.MenuPanel,
             GetTargetPosition(MainMenuScreen.Menu, screen),
             screen == MainMenuScreen.Menu);
-        ApplyPanelImmediate(
+        _animator.ApplyPanelImmediate(
             _view.SettingsPanel,
             GetTargetPosition(MainMenuScreen.Settings, screen),
             screen == MainMenuScreen.Settings);
-        ApplyPanelImmediate(
+        _animator.ApplyPanelImmediate(
             _view.ExitPanel,
             GetTargetPosition(MainMenuScreen.ExitConfirm, screen),
             screen == MainMenuScreen.ExitConfirm);
-        ApplyPanelImmediate(
+        _animator.ApplyPanelImmediate(
             _view.SavesPanel,
             GetTargetPosition(MainMenuScreen.Saves, screen),
             screen == MainMenuScreen.Saves);
@@ -72,7 +75,7 @@ public sealed class MainMenuScreenTransitionPresenter
             }
             else
             {
-                targetEnterDirection = ResolveDefaultEnterDirection(targetScreen);
+                targetEnterDirection = _animator.GetDefaultEnterDirection(targetScreen);
                 _model.ScreenStack.Add(new MainMenuScreenTransitionEntry(targetScreen, targetEnterDirection));
                 currentHideDirection = Opposite(targetEnterDirection);
             }
@@ -80,20 +83,22 @@ public sealed class MainMenuScreenTransitionPresenter
             var currentPanel = ResolvePanelHandle(currentScreen);
             var targetPanel = ResolvePanelHandle(targetScreen);
 
-            var currentHiddenPosition = GetHiddenPosition(
+            var currentHiddenPosition = _animator.GetHiddenPosition(
                 currentPanel.Panel,
                 GetShownPosition(currentScreen),
-                currentHideDirection);
+                currentHideDirection,
+                _view.Layout);
             var targetShownPosition = GetShownPosition(targetScreen);
-            var targetHiddenPosition = GetHiddenPosition(
+            var targetHiddenPosition = _animator.GetHiddenPosition(
                 targetPanel.Panel,
                 targetShownPosition,
-                targetEnterDirection);
+                targetEnterDirection,
+                _view.Layout);
 
-            MainMenuPanelAnimator.SetImmediate(targetPanel.Panel, targetHiddenPosition);
+            _animator.PreparePanelForShow(targetPanel, targetHiddenPosition);
 
-            await MovePanelAsync(currentPanel, currentHiddenPosition, false, token);
-            await MovePanelAsync(targetPanel, targetShownPosition, true, token);
+            await _animator.MovePanelAsync(currentPanel, currentHiddenPosition, false, _view.Layout, token);
+            await _animator.MovePanelAsync(targetPanel, targetShownPosition, true, _view.Layout, token);
 
             _model.CurrentScreen = targetScreen;
             return true;
@@ -159,7 +164,11 @@ public sealed class MainMenuScreenTransitionPresenter
         }
 
         var direction = ResolveHiddenDirection(panelScreen, activeScreen);
-        return GetHiddenPosition(ResolvePanelHandle(panelScreen).Panel, GetShownPosition(panelScreen), direction);
+        return _animator.GetHiddenPosition(
+            ResolvePanelHandle(panelScreen).Panel,
+            GetShownPosition(panelScreen),
+            direction,
+            _view.Layout);
     }
 
     private Vector2 GetShownPosition(MainMenuScreen screen)
@@ -180,28 +189,17 @@ public sealed class MainMenuScreenTransitionPresenter
     {
         if (panelScreen == MainMenuScreen.Menu)
         {
-            var activeEnter = ResolveDefaultEnterDirection(activeScreen);
+            var activeEnter = _animator.GetDefaultEnterDirection(activeScreen);
             return Opposite(activeEnter);
         }
 
-        return ResolveDefaultEnterDirection(panelScreen);
-    }
-
-    private MainMenuScreenTransitionDirection ResolveDefaultEnterDirection(MainMenuScreen screen)
-    {
-        return screen switch
-        {
-            MainMenuScreen.Settings => MainMenuScreenTransitionDirection.Left,
-            MainMenuScreen.ExitConfirm => MainMenuScreenTransitionDirection.Down,
-            MainMenuScreen.Saves => MainMenuScreenTransitionDirection.Up,
-            _ => MainMenuScreenTransitionDirection.Up
-        };
+        return _animator.GetDefaultEnterDirection(panelScreen);
     }
 
     private void ResetStack(MainMenuScreen screen)
     {
         _model.ScreenStack.Clear();
-        var enterDirection = ResolveDefaultEnterDirection(screen);
+        var enterDirection = _animator.GetDefaultEnterDirection(screen);
         _model.ScreenStack.Add(new MainMenuScreenTransitionEntry(screen, enterDirection));
     }
 
@@ -212,7 +210,7 @@ public sealed class MainMenuScreenTransitionPresenter
             return;
         }
 
-        var enterDirection = ResolveDefaultEnterDirection(screen);
+        var enterDirection = _animator.GetDefaultEnterDirection(screen);
         _model.ScreenStack.Add(new MainMenuScreenTransitionEntry(screen, enterDirection));
     }
 
@@ -249,112 +247,6 @@ public sealed class MainMenuScreenTransitionPresenter
             MainMenuScreen.Saves => _view.SavesPanel,
             _ => _view.MenuPanel
         };
-    }
-
-    private Vector2 GetHiddenPosition(
-        RectTransform panel,
-        Vector2 shownPosition,
-        MainMenuScreenTransitionDirection direction)
-    {
-        var parent = panel.parent as RectTransform;
-        var padding = _view.Layout.OffscreenPadding;
-
-        if (parent == null)
-        {
-            var size = panel.rect.size;
-            return direction switch
-            {
-                MainMenuScreenTransitionDirection.Up => shownPosition + Vector2.up * (size.y + padding),
-                MainMenuScreenTransitionDirection.Down => shownPosition + Vector2.down * (size.y + padding),
-                MainMenuScreenTransitionDirection.Left => shownPosition + Vector2.left * (size.x + padding),
-                MainMenuScreenTransitionDirection.Right => shownPosition + Vector2.right * (size.x + padding),
-                _ => shownPosition
-            };
-        }
-
-        var parentRect = parent.rect;
-        var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(parent, panel);
-        var deltaToShown = shownPosition - panel.anchoredPosition;
-        bounds.center += (Vector3)deltaToShown;
-
-        return direction switch
-        {
-            MainMenuScreenTransitionDirection.Up => shownPosition + new Vector2(0f, parentRect.yMax + padding - bounds.min.y),
-            MainMenuScreenTransitionDirection.Down => shownPosition + new Vector2(0f, parentRect.yMin - padding - bounds.max.y),
-            MainMenuScreenTransitionDirection.Left => shownPosition + new Vector2(parentRect.xMin - padding - bounds.max.x, 0f),
-            MainMenuScreenTransitionDirection.Right => shownPosition + new Vector2(parentRect.xMax + padding - bounds.min.x, 0f),
-            _ => shownPosition
-        };
-    }
-
-    private void ApplyPanelImmediate(
-        MainMenuScreenTransitionView.PanelHandle panel,
-        Vector2 position,
-        bool show)
-    {
-        MainMenuPanelAnimator.SetImmediate(panel.Panel, position);
-        if (show)
-        {
-            panel.Show();
-            panel.SetInteractable(true);
-        }
-        else
-        {
-            panel.SetInteractable(false);
-            panel.Hide();
-        }
-    }
-
-    private async UniTask MovePanelAsync(
-        MainMenuScreenTransitionView.PanelHandle panel,
-        Vector2 position,
-        bool show,
-        CancellationToken token)
-    {
-        var duration = _view.Layout.TransitionDuration;
-        var useUnscaledTime = _view.Layout.UseUnscaledTime;
-        var showOvershoot = _view.Layout.ShowOvershoot;
-
-        if (show)
-        {
-            panel.Show();
-        }
-
-        panel.SetInteractable(false);
-
-        var startPosition = panel.Panel.anchoredPosition;
-        var direction = position - startPosition;
-        if (direction.sqrMagnitude <= 0.0001f)
-        {
-            direction = Vector2.up;
-        }
-
-        await UniTask.WhenAll(
-            MainMenuPanelAnimator.MoveAsync(
-                panel.Panel,
-                position,
-                duration,
-                useUnscaledTime,
-                showOvershoot,
-                token,
-                show),
-            MainMenuPanelContentAnimator.PlayAsync(
-                panel.Panel,
-                panel.Elements,
-                show,
-                direction,
-                duration,
-                useUnscaledTime,
-                token));
-
-        if (show)
-        {
-            panel.SetInteractable(true);
-        }
-        else
-        {
-            panel.Hide();
-        }
     }
 }
 }

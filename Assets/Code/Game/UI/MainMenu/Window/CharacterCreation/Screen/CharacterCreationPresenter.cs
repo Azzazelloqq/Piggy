@@ -18,6 +18,7 @@ public sealed class CharacterCreationPresenter : CharacterCreationPresenterBase
     private readonly List<CharacterTraitRowPresenter> _traitPresenters = new();
     private CharacterStatConfig[] _statDefinitions = Array.Empty<CharacterStatConfig>();
     private CharacterTagsConfig[] _traitDefinitions = Array.Empty<CharacterTagsConfig>();
+    private CharacterClassConfig[] _classDefinitions = Array.Empty<CharacterClassConfig>();
     private CharacterAvatarConfig[] _avatarDefinitions = Array.Empty<CharacterAvatarConfig>();
     private bool _configPrepared;
     private readonly CharactersConfigPage _characterConfigPage;
@@ -231,25 +232,26 @@ public sealed class CharacterCreationPresenter : CharacterCreationPresenterBase
 
     private void SyncAvatar()
     {
-        var avatars = _avatarDefinitions;
-        if (avatars.Length == 0)
+        var classes = _classDefinitions;
+        if (classes.Length == 0)
         {
             _lastAvatarIndex = -1;
             _pendingAvatarSlideDirection = AvatarSlideDirection.None;
-            view.SetAvatar(null, "Нет вариантов", AvatarSlideDirection.None);
+            view.SetAvatar(null, string.Empty, "Нет классов", AvatarSlideDirection.None);
             return;
         }
 
         var index = model.AvatarIndex;
-        if (index < 0 || index >= avatars.Length)
+        if (index < 0 || index >= classes.Length)
         {
             index = 0;
         }
 
-        var avatar = avatars[index];
-        var label = string.IsNullOrWhiteSpace(avatar.Id)
-            ? $"Вид {index + 1}"
-            : avatar.Id;
+        var characterClass = classes[index];
+        var label = !string.IsNullOrWhiteSpace(characterClass.Id)
+            ? characterClass.Id
+            : $"Класс {index + 1}";
+        var portrait = ResolveAvatarPortrait(characterClass.AvatarId);
         var direction = AvatarSlideDirection.None;
         if (_lastAvatarIndex >= 0 && _lastAvatarIndex != index)
         {
@@ -262,7 +264,7 @@ public sealed class CharacterCreationPresenter : CharacterCreationPresenterBase
             }
         }
 
-        view.SetAvatar(avatar.Portrait, label, direction);
+        view.SetAvatar(portrait, characterClass.LocalisationKey, label, direction);
         _pendingAvatarSlideDirection = AvatarSlideDirection.None;
         _lastAvatarIndex = index;
     }
@@ -378,6 +380,7 @@ public sealed class CharacterCreationPresenter : CharacterCreationPresenterBase
         }
 
         _traitDefinitions = _characterConfigPage.AllTraitsIds ?? Array.Empty<CharacterTagsConfig>();
+        _classDefinitions = _characterConfigPage.Classes ?? Array.Empty<CharacterClassConfig>();
         _avatarDefinitions = _characterConfigPage.Avatars ?? Array.Empty<CharacterAvatarConfig>();
         _configPrepared = true;
     }
@@ -402,10 +405,10 @@ public sealed class CharacterCreationPresenter : CharacterCreationPresenterBase
             traitIds[i] = traitId;
         }
 
-        var avatarIds = new string[_avatarDefinitions.Length];
-        for (var i = 0; i < _avatarDefinitions.Length; i++)
+        var avatarIds = new string[_classDefinitions.Length];
+        for (var i = 0; i < _classDefinitions.Length; i++)
         {
-            avatarIds[i] = _avatarDefinitions[i].Id ?? string.Empty;
+            avatarIds[i] = _classDefinitions[i].AvatarId ?? string.Empty;
         }
 
         var maxSumPoints = _characterConfigPage.StatsConfig.MaxSumCharacterPoints;
@@ -418,6 +421,38 @@ public sealed class CharacterCreationPresenter : CharacterCreationPresenterBase
             maxSumPoints,
             maxTraits,
             defaultStatValue);
+    }
+
+    private Sprite ResolveAvatarPortrait(string avatarId)
+    {
+        if (TryGetAvatarDefinition(avatarId, out var avatar))
+        {
+            return avatar.Portrait;
+        }
+
+        return null;
+    }
+
+    private bool TryGetAvatarDefinition(string avatarId, out CharacterAvatarConfig avatar)
+    {
+        if (string.IsNullOrWhiteSpace(avatarId))
+        {
+            avatar = default;
+            return false;
+        }
+
+        for (var i = 0; i < _avatarDefinitions.Length; i++)
+        {
+            var candidate = _avatarDefinitions[i];
+            if (string.Equals(candidate.Id, avatarId, StringComparison.Ordinal))
+            {
+                avatar = candidate;
+                return true;
+            }
+        }
+
+        avatar = default;
+        return false;
     }
 }
 }

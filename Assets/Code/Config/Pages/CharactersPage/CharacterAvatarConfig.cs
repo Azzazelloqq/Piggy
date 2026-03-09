@@ -14,5 +14,6 @@ public struct CharacterAvatarConfig
 
     public string Id => _id;
     public Sprite Portrait => _portrait;
+    
 }
 }

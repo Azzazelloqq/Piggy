@@ -16,11 +16,15 @@ public class CharactersConfigPage : ScriptableObject, IConfigPage
     private int _maxTraits = 2;
 
     [SerializeField]
+    private CharacterClassConfig[] _classes;
+
+    [SerializeField]
     private CharacterAvatarConfig[] _avatars;
 
     public CharacterTagsConfig[] AllTraitsIds => _allTraitsIds;
     public StatsConfig StatsConfig => _statsConfig;
     public int MaxTraits => _maxTraits;
+    public CharacterClassConfig[] Classes => _classes;
     public CharacterAvatarConfig[] Avatars => _avatars;
 }
 }

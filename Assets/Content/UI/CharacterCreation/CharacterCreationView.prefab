@@ -77,7 +77,7 @@ MonoBehaviour:
   _nameInputRoot: {fileID: 3000000121}
   _pointsText: {fileID: 3000000151}
   _traitsText: {fileID: 3000000181}
-  _avatarLabel: {fileID: 3000000083}
+  _avatarLabelLocalized: {fileID: 2206465723123120191}
   _avatarImage: {fileID: 3000000077}
   _createButton: {fileID: 3000000207}
   _backButton: {fileID: 3000000217}
@@ -1123,6 +1123,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3000000081}
   - component: {fileID: 3000000082}
+  - component: {fileID: 2206465723123120191}
   - component: {fileID: 3000000083}
   m_Layer: 5
   m_Name: AvatarLabel
@@ -1158,6 +1159,41 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3000000080}
   m_CullTransparentMesh: 1
+--- !u!114 &2206465723123120191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3000000080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6cd7f004ba4448a98389f62f6ee4c41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: LocalizedDomain.Unity.TextMeshPro::LocalizedDomain.Unity.LocalizedTMPText
+  _key: 
+  _fallback: 
+  _autoRefresh: 1
+  _arguments: []
+  _snapshot:
+    Font: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    FontMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    FontSize: 22
+    FontStyle: 0
+    Alignment: 514
+    Color: {r: 0.18867922, g: 0.03470986, b: 0.03470986, a: 1}
+    RichText: 1
+    WordWrapping: 0
+    OverflowMode: 0
+    AutoSize: 0
+    FontSizeMin: 0
+    FontSizeMax: 0
+    LineSpacing: 0
+    CharacterSpacing: 0
+    ParagraphSpacing: 0
+    WordSpacing: 0
+    EnableKerning: 0
+  _applySnapshotOnEnable: 1
 --- !u!114 &3000000083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1178,7 +1214,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u0412\u0438\u0434 1"
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

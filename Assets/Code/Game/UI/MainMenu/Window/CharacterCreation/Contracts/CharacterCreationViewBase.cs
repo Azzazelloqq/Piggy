@@ -23,7 +23,11 @@ public abstract class CharacterCreationViewBase
     public abstract void SetName(string name);
     public abstract void SetPointsText(string text);
     public abstract void SetTraitsText(string text);
-    public abstract void SetAvatar(Sprite portrait, string label, AvatarSlideDirection direction);
+    public abstract void SetAvatar(
+        Sprite portrait,
+        string localizationKey,
+        string fallbackLabel,
+        AvatarSlideDirection direction);
     public abstract IReadOnlyList<CharacterStatRowViewBase> EnsureStatRows(int count);
     public abstract IReadOnlyList<CharacterTraitRowViewBase> EnsureTraitRows(int count);
 

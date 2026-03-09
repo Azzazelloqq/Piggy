@@ -101,7 +101,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GradAAngle: 267
+    - _GradAAngle: 90
     - _GradAInvert: 0
     - _GradAType: 0
     - _GradBAngle: 90
@@ -109,7 +109,7 @@ Material:
     - _GradBType: 0
     - _GradBlend: 0
     - _GradBlendMode: 0
-    - _GradientMix: 0.929
+    - _GradientMix: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -135,7 +135,7 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GradACenter: {r: 0.5, g: 0.5, b: 0, a: 0}
-    - _GradAColor0: {r: 1, g: 1, b: 1, a: 1}
+    - _GradAColor0: {r: 0, g: 0, b: 0, a: 1}
     - _GradAColor1: {r: 0, g: 0, b: 0, a: 1}
     - _GradAOffset: {r: 0, g: 0, b: 0, a: 0}
     - _GradAScale: {r: 1, g: 1, b: 0, a: 0}

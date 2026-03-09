@@ -51,6 +51,16 @@ MonoBehaviour:
       _localisationKey: character_stats_intelligence
       _fallbackLabel: 
   _maxTraits: 3
+  _classes:
+  - _id: character_class_mage
+    _localisationKey: character_class_mage_name
+    _avatarId: character_avatar_mage
+  - _id: character_class_warrior
+    _localisationKey: character_class_warrior_name
+    _avatarId: character_avatar_warrior
+  - _id: character_class_bard
+    _localisationKey: character_class_bard_name
+    _avatarId: character_avatar_bard
   _avatars:
   - _id: character_avatar_mage
     _portrait: {fileID: -1770113840, guid: 0a2ca835c3c7cca4db7823795b34c85f, type: 3}

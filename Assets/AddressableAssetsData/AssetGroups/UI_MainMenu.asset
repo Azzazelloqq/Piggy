@@ -25,8 +25,23 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f7aa9c9c0e24d59a0b2c6f2b9c25fa3
+    m_Address: CharacterStatRowView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 70b12c93445789c47bec606641260da0
     m_Address: MainMenuSettingsView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a7e820a0e4ce4df9bca2b0782d5f53f7
+    m_Address: CharacterCreationView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c32eb0c92199cdf4f90478d9847a9ee2
+    m_Address: MainMenuView
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -36,7 +51,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d5e4f3061728394a5b6c7d8e9fa1b2c3
-    m_Address: GameProfilesView
+    m_Address: GameProfilesSlotView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f3b1bd497aa04c5e9d8a4f9bcafab0d3
+    m_Address: CharacterTraitRowView
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

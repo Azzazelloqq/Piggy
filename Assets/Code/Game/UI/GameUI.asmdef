@@ -1,0 +1,23 @@
+{
+  "name": "GameUI",
+    "references": [
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:c9f76ac6b5b2484789d93f0d3960dc33",
+        "GUID:a649dfdd7ec849148a9a050cb8705d74",
+        "GUID:fc9472c09360a0e48b998a21fda85ee1",
+        "GUID:f3a29d15daa5e9345ab71de7276cd04b",
+        "GUID:c164f627256544647be795722936f145",
+        "GUID:34d9785e0f9142bba548f7292b5701b5",
+        "GUID:e03d2d67472051a4e8982e8a5bebc561",
+        "GUID:4d6d18948e5cdd145be231a15bcd4780",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:82cc87033bf944c382a273ab2d682a2b",
+        "GUID:d3b716c68dab4357be2228cfb96275c4",
+        "GUID:c603b98b1af44451a86519fe0e474cb3",
+        "GUID:cfeec455693a7944d98cec3bf74471fa",
+        "GUID:175c52130e284e01a573026ed12e1b13",
+        "GUID:8ad73dffd5f14a52a088674e60cfe3ea",
+        "GUID:144e9e15a6d6473a96cc570c4bb0edf7",
+        "GUID:1d9516e6f01b24c47a72364509e55a7c"
+    ]
+}

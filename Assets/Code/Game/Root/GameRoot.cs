@@ -1,13 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using Azzazelloqq.Config;
+using Code.Config;
 using Code.Game.Bootstrap.State;
 using Code.Game.Loading;
 using Code.Game.MainMenu.States;
 using Code.Game.Saves;
 using Code.Generated.Addressables;
+using Cysharp.Threading.Tasks;
 using Disposable;
 using InGameLogger;
 using LightDI.Runtime;
+using LocalizedDomain;
+using LocalizedDomain.Unity;
 using LocalSaveSystem;
 using Piggy.Code.StateMachine;
 using ResourceLoader;
@@ -25,6 +32,18 @@ public class GameRoot : MonoBehaviourDisposable
     [SerializeField]
     private RootContext _rootContext;
 
+    [SerializeField]
+    private TextAsset _localizationJson;
+
+    [SerializeField]
+    private string _defaultLocale = "en";
+
+    [SerializeField]
+    private List<string> _fallbackLocales = new() { "en" };
+
+    [SerializeField]
+    private MainConfig _mainConfig;
+
     private readonly IStateMachine _stateMachine = new StateMachine();
     private IDiContainer _gameDiContainer;
     private UnityInGameLogger _inGameLogger;
@@ -41,6 +60,9 @@ public class GameRoot : MonoBehaviourDisposable
         _inGameLogger = new UnityInGameLogger();
         _gameDiContainer.RegisterAsSingleton<IInGameLogger>(_inGameLogger);
         
+        await InitializeConfig(destroyCancellationToken);
+        
+        InitializeLocalization();
         InitializeSaveSystem();
 
         var dispatcherObject = new GameObject();
@@ -111,6 +133,24 @@ public class GameRoot : MonoBehaviourDisposable
         saveStore.StartAutoSave();
 
         _gameDiContainer.RegisterAsSingleton<ISaveStore>(saveStore);
+    }
+
+    private void InitializeLocalization()
+    {
+        LocalizationRuntime.Initialize(_localizationJson, _defaultLocale, _fallbackLocales);
+
+        ILocalizationProvider localizationProvider = LocalizationRuntime.Service;
+        _gameDiContainer.RegisterAsSingleton(localizationProvider);
+    }
+
+    private async UniTask InitializeConfig(CancellationToken token)
+    {
+        var scriptableObjectConfigParser = new ScriptableObjectConfigParser(_mainConfig);
+        
+        var config = new Azzazelloqq.Config.Config(scriptableObjectConfigParser);
+        await config.InitializeAsync(token);
+        
+        _gameDiContainer.RegisterAsSingleton<IConfig>(config);
     }
 }
 }

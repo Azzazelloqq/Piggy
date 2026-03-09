@@ -1,0 +1,21 @@
+{
+  "name": "Root",
+    "references": [
+        "GUID:e03d2d67472051a4e8982e8a5bebc561",
+        "GUID:c9f76ac6b5b2484789d93f0d3960dc33",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:a649dfdd7ec849148a9a050cb8705d74",
+        "GUID:1d9516e6f01b24c47a72364509e55a7c",
+        "GUID:4d6d18948e5cdd145be231a15bcd4780",
+        "GUID:f3a29d15daa5e9345ab71de7276cd04b",
+        "GUID:21443193b9119fc458cebc6c25737dbb",
+        "GUID:227d34d54ce64f22b93973a344e946a0",
+        "GUID:d3b716c68dab4357be2228cfb96275c4",
+        "GUID:82cc87033bf944c382a273ab2d682a2b",
+        "GUID:c603b98b1af44451a86519fe0e474cb3",
+        "GUID:c164f627256544647be795722936f145",
+        "LocalizedDomain.Core",
+        "LocalizedDomain.Unity",
+        "GUID:175c52130e284e01a573026ed12e1b13"
+    ]
+}

@@ -1,0 +1,6 @@
+﻿{
+  "name": "GameSaves",
+    "references": [
+        "GUID:c164f627256544647be795722936f145"
+    ]
+}

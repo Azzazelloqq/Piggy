@@ -21,6 +21,13 @@
       "dependencies": {},
       "hash": "b5d0f92210cd530534b434b8094cde3f68252da2"
     },
+    "com.azzazello.localizeddomain": {
+      "version": "https://github.com/Azzazelloqq/LocalizedDomain.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "1d0a17dae8937d28a78c4f722726e06abed24cf8"
+    },
     "com.azzazello.localsavesystem": {
       "version": "https://github.com/Azzazelloqq/LocalSave.git",
       "depth": 0,
@@ -42,7 +49,7 @@
       "dependencies": {
         "com.azzazello.disposable": "https://github.com/Azzazelloqq/Disposable.git#main"
       },
-      "hash": "c099ed0e755f7ad733949a9611cc894036ad2aff"
+      "hash": "afa33a7afb5bd3dadb7c0c7a74f385d7e8761c1c"
     },
     "com.azzazello.resourceloader": {
       "version": "https://github.com/Azzazelloqq/ResourceLoader.git",
@@ -66,6 +73,12 @@
       "source": "git",
       "dependencies": {},
       "hash": "73a63b7f672b88f7e9992f6917eb458a8cbb6fa9"
+    },
+    "com.unity.2d.sprite": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
     },
     "com.unity.addressables": {
       "version": "2.7.4",

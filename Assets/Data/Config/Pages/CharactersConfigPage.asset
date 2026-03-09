@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2166528eb5e14ee3b8e453e3c2757d99, type: 3}
+  m_Name: CharactersConfigPage
+  m_EditorClassIdentifier: GameConfig::Code.Config.Pages.CharactersPage.CharactersConfigPage
+  _allTraitsIds:
+  - _id: character_traits_brave
+    _localisationKey: character_trait_brave
+    _description: "A character who faces danger without hesitation.\n They protect
+      allies, take responsibility, a\nnd often put others before themselves. \nEven
+      in hopeless situations, they refuse to give up."
+  - _id: character_traits_cunning
+    _localisationKey: character_trait_cunning
+    _description: "A character who prefers brains over brute force.\nThey solve problems
+      with strategy, deception, \nor negotiation. Sometimes morally ambiguous \nbut
+      extremely effectiv"
+  - _id: character_traits_calm
+    _localisationKey: character_trait_calm
+    _description: "A character who remains calm under pressure. \nThey think before
+      acting and rely on logic rather \nthan emotion.\n Often the strategist or advisor
+      of the group."
+  _statsConfig:
+    _maxSumCharacterPoints: 5
+    _defaultStatValue: 10
+    _stats:
+    - _type: 0
+      _localisationKey: character_stats_strenght
+      _fallbackLabel: 
+    - _type: 1
+      _localisationKey: character_stats_dexterity
+      _fallbackLabel: 
+    - _type: 2
+      _localisationKey: character_stats_constitution
+      _fallbackLabel: 
+    - _type: 3
+      _localisationKey: character_stats_wisdom
+      _fallbackLabel: 
+    - _type: 4
+      _localisationKey: character_stats_charisma
+      _fallbackLabel: 
+    - _type: 5
+      _localisationKey: character_stats_intelligence
+      _fallbackLabel: 
+  _maxTraits: 3
+  _avatars:
+  - _id: character_avatar_mage
+    _portrait: {fileID: -1770113840, guid: 0a2ca835c3c7cca4db7823795b34c85f, type: 3}
+  - _id: character_avatar_warrior
+    _portrait: {fileID: 1108759001, guid: c93da7a48fa03d74ea0dc6abff4d9d21, type: 3}
+  - _id: character_avatar_bard
+    _portrait: {fileID: 1296082549, guid: e34ad1a125b7dc146bf91bf1a7964bf5, type: 3}

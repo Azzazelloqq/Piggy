@@ -20,6 +20,7 @@ public abstract class GameProfilesModelBase : Model
     public abstract void Show();
     public abstract void Hide();
     public abstract void RefreshSlots();
+    public abstract void DeleteSlot(int slotIndex);
     public abstract UniTask RequestBackAsync();
     public abstract UniTask RequestSlotSelectionAsync(GameProfilesSlotData slot);
 }

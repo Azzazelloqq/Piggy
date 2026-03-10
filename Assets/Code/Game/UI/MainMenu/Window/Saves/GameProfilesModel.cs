@@ -63,7 +63,7 @@ public sealed class GameProfilesModel : GameProfilesModelBase
         _slots.Clear();
         for (var i = 0; i < slotCount; i++)
         {
-            if (i < saves.Length)
+            if (i < saves.Length && IsSaveFilled(saves[i]))
             {
                 _slots.Add(new GameProfilesSlotData(i, true, saves[i]));
             }
@@ -74,6 +74,38 @@ public sealed class GameProfilesModel : GameProfilesModelBase
         }
 
         SlotsChanged?.Invoke(_slots);
+    }
+
+    public override void DeleteSlot(int slotIndex)
+    {
+        if (slotIndex < 0)
+        {
+            return;
+        }
+
+        var deleted = false;
+        _saveStore.Update(GameSaveKeys.GameProfiles, (ref PlayerProfilesListSave save) =>
+        {
+            var saves = save.GameProfileSaves ?? Array.Empty<GameProfileSave>();
+            if (slotIndex >= saves.Length)
+            {
+                return;
+            }
+
+            if (!IsSaveFilled(saves[slotIndex]))
+            {
+                return;
+            }
+
+            saves[slotIndex] = default;
+            deleted = true;
+            save.GameProfileSaves = TrimTrailingEmptySlots(saves);
+        });
+
+        if (deleted)
+        {
+            _saveStore.Save();
+        }
     }
 
     public override UniTask RequestBackAsync()
@@ -116,6 +148,35 @@ public sealed class GameProfilesModel : GameProfilesModelBase
     protected override ValueTask OnDisposeAsync(CancellationToken token)
     {
         return default;
+    }
+
+    private static bool IsSaveFilled(GameProfileSave save)
+    {
+        return save.PlayerCharacters != null && save.PlayerCharacters.Length > 0;
+    }
+
+    private static GameProfileSave[] TrimTrailingEmptySlots(GameProfileSave[] saves)
+    {
+        var lastIndex = saves.Length - 1;
+        while (lastIndex >= 0 && !IsSaveFilled(saves[lastIndex]))
+        {
+            lastIndex--;
+        }
+
+        if (lastIndex < 0)
+        {
+            return Array.Empty<GameProfileSave>();
+        }
+
+        var trimmedLength = lastIndex + 1;
+        if (trimmedLength == saves.Length)
+        {
+            return saves;
+        }
+
+        var trimmed = new GameProfileSave[trimmedLength];
+        Array.Copy(saves, trimmed, trimmedLength);
+        return trimmed;
     }
 }
 }

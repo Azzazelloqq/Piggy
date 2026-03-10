@@ -117,6 +117,9 @@ public sealed class GameProfilesPresenter : GameProfilesPresenterBase
         {
             var slot = _pendingDeleteSlot;
             Debug.Log($"GameProfiles: delete save slot {slot.Index} requested.");
+            model.DeleteSlot(slot.Index);
+            model.RefreshSlots();
+            SyncSlots();
         }
 
         _hasPendingDelete = false;

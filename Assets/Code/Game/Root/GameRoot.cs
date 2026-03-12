@@ -5,6 +5,8 @@ using System.Threading;
 using Azzazelloqq.Config;
 using Code.Config;
 using Code.Game.Bootstrap.State;
+using Code.Game.Exploration.State;
+using Code.Game.Flow;
 using Code.Game.Loading;
 using Code.Game.MainMenu.States;
 using Code.Game.Saves;
@@ -47,6 +49,9 @@ public class GameRoot : MonoBehaviourDisposable
     private readonly IStateMachine _stateMachine = new StateMachine();
     private IDiContainer _gameDiContainer;
     private UnityInGameLogger _inGameLogger;
+    private ISaveStore _saveStore;
+    private IConfig _config;
+    private IGameFlowService _gameFlowService;
 
 
     // ReSharper disable once AsyncVoidMethod
@@ -65,6 +70,14 @@ public class GameRoot : MonoBehaviourDisposable
         InitializeLocalization();
         InitializeSaveSystem();
 
+        _gameFlowService = new GameFlowService(
+            _stateMachine,
+            _saveStore,
+            _config,
+            _rootContext.UIContext,
+            _inGameLogger);
+        _gameDiContainer.RegisterAsSingleton<IGameFlowService>(_gameFlowService);
+
         var dispatcherObject = new GameObject();
         var unityDispatcherBehaviour = dispatcherObject.AddComponent<UnityDispatcherBehaviour>();
         unityDispatcherBehaviour.name = $"[{unityDispatcherBehaviour.GetType().Name}]";
@@ -81,6 +94,9 @@ public class GameRoot : MonoBehaviourDisposable
 
         var mainMenuState = MainMenuStateFactory.CreateMainMenuState();
         _stateMachine.Register(mainMenuState);
+
+        var explorationState = new ExplorationState();
+        _stateMachine.Register(explorationState);
 
         _gameDiContainer.RegisterAsSingleton(_stateMachine);
 
@@ -128,11 +144,11 @@ public class GameRoot : MonoBehaviourDisposable
             AutoSavePeriodSeconds = 20
         };
 
-        var saveStore = new SaveStore(options);
-        saveStore.RegisterKeys(GameSaveKeys.All);
-        saveStore.StartAutoSave();
+        _saveStore = new SaveStore(options);
+        _saveStore.RegisterKeys(GameSaveKeys.All);
+        _saveStore.StartAutoSave();
 
-        _gameDiContainer.RegisterAsSingleton<ISaveStore>(saveStore);
+        _gameDiContainer.RegisterAsSingleton<ISaveStore>(_saveStore);
     }
 
     private void InitializeLocalization()
@@ -149,6 +165,7 @@ public class GameRoot : MonoBehaviourDisposable
         
         var config = new Azzazelloqq.Config.Config(scriptableObjectConfigParser);
         await config.InitializeAsync(token);
+        _config = config;
         
         _gameDiContainer.RegisterAsSingleton<IConfig>(config);
     }

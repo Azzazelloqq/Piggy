@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Code.Game.Flow;
 using Code.Game.MainMenu.Window;
 using Piggy.Code.StateMachine;
 using UnityEngine;
@@ -10,12 +11,14 @@ public sealed class SavesSubState : GameSubState
 {
     private MainMenuPresenter _presenter;
     private IMainMenuNavigator _navigator;
+    private IGameFlowService _gameFlowService;
 
     protected override UniTask OnEnterAsync<T>(T gameStateContext, CancellationToken token)
     {
         var context = (MainMenuSubStateContext)(object)gameStateContext;
         _presenter = context.Presenter;
         _navigator = context.Navigator;
+        _gameFlowService = context.GameFlowService;
 
         _presenter.SavesBackRequested.Subscribe(HandleBackRequested);
         _presenter.SaveSlotSelected.Subscribe(HandleSlotSelected);
@@ -40,7 +43,13 @@ public sealed class SavesSubState : GameSubState
     {
         if (slot.HasSave)
         {
-            Debug.Log($"MainMenuState: load save slot {slot.Index} requested.");
+            if (_gameFlowService != null)
+            {
+                return _gameFlowService.StartGameAsync(slot.Index);
+            }
+
+            Debug.LogWarning("MainMenuState: GameFlowService is missing.");
+            return UniTask.CompletedTask;
         }
         else
         {

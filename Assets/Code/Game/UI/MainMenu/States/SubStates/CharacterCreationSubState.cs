@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Code.Game.Flow;
 using Code.Game.MainMenu.Window;
 using Code.Game.Saves;
 using Code.Game.Saves.Characters;
@@ -16,6 +17,7 @@ public sealed class CharacterCreationSubState : GameSubState
     private MainMenuPresenter _presenter;
     private IMainMenuNavigator _navigator;
     private ISaveStore _saveStore;
+    private IGameFlowService _gameFlowService;
 
     protected override UniTask OnEnterAsync<T>(T gameStateContext, CancellationToken token)
     {
@@ -23,6 +25,7 @@ public sealed class CharacterCreationSubState : GameSubState
         _presenter = context.Presenter;
         _navigator = context.Navigator;
         _saveStore = context.SaveStore;
+        _gameFlowService = context.GameFlowService;
 
         _presenter.CharacterCreationBackRequested.Subscribe(HandleBackRequested);
         _presenter.CharacterCreationCreateRequested.Subscribe(HandleCreateRequested);
@@ -45,16 +48,21 @@ public sealed class CharacterCreationSubState : GameSubState
 
     private UniTask HandleCreateRequested(CharacterCreationResult result)
     {
-        CreateSaveForSlot(result);
+        var slotIndex = CreateSaveForSlot(result);
+        if (slotIndex >= 0 && _gameFlowService != null)
+        {
+            return _gameFlowService.StartGameAsync(slotIndex);
+        }
+
         return _navigator.NavigateAsync(MainMenuScreen.Saves);
     }
 
-    private void CreateSaveForSlot(CharacterCreationResult result)
+    private int CreateSaveForSlot(CharacterCreationResult result)
     {
         if (_saveStore == null)
         {
             Debug.LogWarning("CharacterCreation: SaveStore is missing.");
-            return;
+            return -1;
         }
 
         var slotIndex = Math.Max(0, result.SlotIndex);
@@ -68,6 +76,7 @@ public sealed class CharacterCreationSubState : GameSubState
         });
 
         _saveStore.Save();
+        return slotIndex;
     }
 
     private static GameProfileSave[] EnsureSaveSize(GameProfileSave[] saves, int count)

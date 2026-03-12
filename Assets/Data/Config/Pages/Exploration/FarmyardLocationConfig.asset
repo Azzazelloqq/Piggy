@@ -1,0 +1,222 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4a1c2b3d4e5f60718293a4b5c6d7e8f, type: 3}
+  m_Name: FarmyardLocationConfig
+  m_EditorClassIdentifier: GameConfig::Code.Config.Pages.Exploration.LocationConfig
+  _id: location_farmyard
+  _displayName: Farmyard
+  _defaultNodeId: node_yard
+  _nodes:
+  - _id: node_yard
+    _displayName: Yard
+    _connectedNodeIds:
+    - node_house
+    - node_barn
+  - _id: node_house
+    _displayName: Chief House
+    _connectedNodeIds:
+    - node_yard
+  - _id: node_barn
+    _displayName: Barn
+    _connectedNodeIds:
+    - node_yard
+  _entities:
+  - _id: entity_toilet
+    _displayName: Toilet
+    _type: 0
+    _nodeId: node_yard
+    _discovery:
+      _initialState: 2
+      _mode: 0
+      _dc: 0
+      _requiredFlagId: 
+    _activity:
+      _id: activity_toilet
+      _displayName: Search Toilet
+      _options:
+      - _id: toilet_search
+        _displayName: Search the toilet
+        _timeCost: 1
+        _check:
+          _statId: perception
+          _dc: 12
+          _modifier: 0
+        _conditions: []
+        _actions:
+        - _type: 3
+          _flagId: 
+          _flagValue: 0
+          _entityId: entity_hidden_key
+          _knowledgeState: 0
+          _timeCost: 0
+          _targetLocationId: 
+          _targetNodeId: 
+          _suspicionDelta: 0
+        - _type: 1
+          _flagId: toilet_searched
+          _flagValue: 1
+          _entityId: 
+          _knowledgeState: 0
+          _timeCost: 0
+          _targetLocationId: 
+          _targetNodeId: 
+          _suspicionDelta: 0
+    _transition:
+      _targetLocationId: 
+      _targetNodeId: 
+      _timeCost: 0
+      _check:
+        _statId: 
+        _dc: 0
+        _modifier: 0
+      _conditions: []
+      _actions: []
+    _events: []
+  - _id: entity_chief_house
+    _displayName: Chief House Door
+    _type: 0
+    _nodeId: node_house
+    _discovery:
+      _initialState: 2
+      _mode: 0
+      _dc: 0
+      _requiredFlagId: 
+    _activity:
+      _id: activity_enter_house
+      _displayName: Enter the house
+      _options:
+      - _id: enter_house
+        _displayName: Enter
+        _timeCost: 2
+        _check:
+          _statId: persuasion
+          _dc: 10
+          _modifier: 0
+        _conditions: []
+        _actions:
+        - _type: 0
+          _flagId: 
+          _flagValue: 0
+          _entityId: 
+          _knowledgeState: 0
+          _timeCost: 2
+          _targetLocationId: 
+          _targetNodeId: 
+          _suspicionDelta: 0
+    _transition:
+      _targetLocationId: 
+      _targetNodeId: 
+      _timeCost: 0
+      _check:
+        _statId: 
+        _dc: 0
+        _modifier: 0
+      _conditions: []
+      _actions: []
+    _events: []
+  - _id: entity_hidden_key
+    _displayName: Rusty Key
+    _type: 1
+    _nodeId: node_barn
+    _discovery:
+      _initialState: 0
+      _mode: 2
+      _dc: 0
+      _requiredFlagId: toilet_searched
+    _activity:
+      _id: 
+      _displayName: 
+      _options: []
+    _transition:
+      _targetLocationId: 
+      _targetNodeId: 
+      _timeCost: 0
+      _check:
+        _statId: 
+        _dc: 0
+        _modifier: 0
+      _conditions: []
+      _actions: []
+    _events: []
+  - _id: entity_gate
+    _displayName: Farm Gate
+    _type: 2
+    _nodeId: node_yard
+    _discovery:
+      _initialState: 2
+      _mode: 0
+      _dc: 0
+      _requiredFlagId: 
+    _activity:
+      _id: 
+      _displayName: 
+      _options: []
+    _transition:
+      _targetLocationId: location_forest
+      _targetNodeId: node_path
+      _timeCost: 4
+      _check:
+        _statId: 
+        _dc: 0
+        _modifier: 0
+      _conditions:
+      - _type: 0
+        _flagId: gate_unlocked
+        _flagValue: 1
+        _entityId: 
+        _knowledgeState: 0
+        _minTimeUnits: 0
+        _maxTimeUnits: 0
+        _invert: 0
+      _actions: []
+    _events: []
+  _events:
+  - _id: event_enter_yard
+    _displayName: Entered the yard
+    _trigger: 2
+    _priority: 1
+    _weight: 1
+    _isRepeatable: 0
+    _cooldownTimeUnits: 0
+    _targetNodeId: node_yard
+    _targetEntityId: 
+    _conditions: []
+    _actions: []
+  - _id: event_toilet_noise
+    _displayName: Toilet noise
+    _trigger: 1
+    _priority: 0
+    _weight: 1
+    _isRepeatable: 1
+    _cooldownTimeUnits: 5
+    _targetNodeId: 
+    _targetEntityId: entity_toilet
+    _conditions: []
+    _actions:
+    - _type: 8
+      _flagId: 
+      _flagValue: 0
+      _entityId: 
+      _knowledgeState: 0
+      _timeCost: 0
+      _targetLocationId: 
+      _targetNodeId: 
+      _suspicionDelta: 1
+    - _type: 0
+      _flagId: 
+      _flagValue: 0
+      _entityId: 
+      _knowledgeState: 0
+      _timeCost: 1
+      _targetLocationId: 
+      _targetNodeId: 
+      _suspicionDelta: 0

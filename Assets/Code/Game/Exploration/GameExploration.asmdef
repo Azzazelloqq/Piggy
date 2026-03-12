@@ -1,0 +1,11 @@
+{
+  "name": "GameExploration",
+  "references": [
+    "GameExplorationShared",
+    "GameConfig",
+    "GameSaves",
+    "Piggy.StateMachine",
+    "UIContext",
+    "UniTask"
+  ]
+}

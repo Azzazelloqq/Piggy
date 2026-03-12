@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameConfig::Code.Config.MainConfig
   _pages:
   - {fileID: 11400000, guid: 75735cb8f5489824ba85ac521f02de2f, type: 2}
+  - {fileID: 11400000, guid: e1f2a3b4c5d6e7f8091a2b3c4d5e6f70, type: 2}
+  - {fileID: 11400000, guid: f0e1d2c3b4a5968778695a4b3c2d1e0f, type: 2}

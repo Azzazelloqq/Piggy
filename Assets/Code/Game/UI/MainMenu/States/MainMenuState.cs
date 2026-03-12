@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Code.Game.Flow;
 using Code.Game.MainMenu.Window;
 using Code.Generated.Addressables;
 using InGameLogger;
@@ -18,17 +19,23 @@ public sealed class MainMenuState : GameState, IMainMenuNavigator
     private readonly IInGameLogger _logger;
     private readonly ISaveStore _saveStore;
     private readonly IResourceLoader _resourceLoader;
+    private readonly IGameFlowService _gameFlowService;
     private MainMenuPresenter _menuPresenter;
 
     private MainMenuViewBase _menuView;
 
     private CancellationToken _stateToken;
 
-    public MainMenuState([Inject] IInGameLogger logger, [Inject] ISaveStore saveStore, [Inject] IResourceLoader resourceLoader)
+    public MainMenuState(
+        [Inject] IInGameLogger logger,
+        [Inject] ISaveStore saveStore,
+        [Inject] IResourceLoader resourceLoader,
+        [Inject] IGameFlowService gameFlowService)
     {
         _logger = logger;
         _saveStore = saveStore;
         _resourceLoader = resourceLoader;
+        _gameFlowService = gameFlowService;
         SubStateMachine.Register(new MenuSubState());
         SubStateMachine.Register(new SettingsSubState());
         SubStateMachine.Register(new ExitConfirmSubState());
@@ -129,7 +136,8 @@ public sealed class MainMenuState : GameState, IMainMenuNavigator
             _menuPresenter,
             this,
             _logger,
-            _saveStore);
+            _saveStore,
+            _gameFlowService);
     }
 }
 }

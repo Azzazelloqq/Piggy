@@ -1,3 +1,4 @@
+using Code.Game.Flow;
 using Code.Game.MainMenu.Window;
 using InGameLogger;
 using LocalSaveSystem;
@@ -12,13 +13,15 @@ public readonly struct MainMenuSubStateContext : IGameStateContext
         MainMenuPresenter presenter,
         IMainMenuNavigator navigator,
         IInGameLogger logger,
-        ISaveStore saveStore)
+        ISaveStore saveStore,
+        IGameFlowService gameFlowService)
     {
         Screen = screen;
         Presenter = presenter;
         Navigator = navigator;
         Logger = logger;
         SaveStore = saveStore;
+        GameFlowService = gameFlowService;
     }
 
     public MainMenuScreen Screen { get; }
@@ -26,5 +29,6 @@ public readonly struct MainMenuSubStateContext : IGameStateContext
     public IMainMenuNavigator Navigator { get; }
     public IInGameLogger Logger { get; }
     public ISaveStore SaveStore { get; }
+    public IGameFlowService GameFlowService { get; }
 }
 }

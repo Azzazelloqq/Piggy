@@ -1,3 +1,4 @@
+using System;
 using Code.Config.Pages.Exploration;
 using Code.Game.Exploration.Domain;
 using Code.Game.Exploration.Runtime;
@@ -12,7 +13,22 @@ public sealed class ActionExecutor
         LocationRuntimeState locationState,
         TimeService timeService)
     {
-        if (actions == null || actions.Length == 0 || worldState == null)
+        if (worldState == null)
+        {
+            throw new ArgumentNullException(nameof(worldState));
+        }
+
+        if (locationState == null)
+        {
+            throw new ArgumentNullException(nameof(locationState));
+        }
+
+        if (timeService == null)
+        {
+            throw new ArgumentNullException(nameof(timeService));
+        }
+
+        if (actions == null || actions.Length == 0)
         {
             return;
         }
@@ -29,6 +45,21 @@ public sealed class ActionExecutor
         LocationRuntimeState locationState,
         TimeService timeService)
     {
+        if (worldState == null)
+        {
+            throw new ArgumentNullException(nameof(worldState));
+        }
+
+        if (locationState == null)
+        {
+            throw new ArgumentNullException(nameof(locationState));
+        }
+
+        if (timeService == null)
+        {
+            throw new ArgumentNullException(nameof(timeService));
+        }
+
         switch (action.Type)
         {
             case ActionType.SpendTime:
@@ -69,14 +100,14 @@ public sealed class ActionExecutor
         }
 
         worldState.CurrentTimeUnits += timeCost;
-        timeService?.AddUnits(timeCost);
+        timeService.AddUnits(timeCost);
     }
 
     private static void ApplyFlag(string flagId, bool value, WorldRuntimeState worldState)
     {
         if (string.IsNullOrWhiteSpace(flagId))
         {
-            return;
+            throw new InvalidOperationException("Flag action requires a non-empty flag id.");
         }
 
         worldState.Flags[flagId] = value;
@@ -87,47 +118,57 @@ public sealed class ActionExecutor
         KnowledgeState knowledgeState,
         LocationRuntimeState locationState)
     {
-        if (locationState == null || string.IsNullOrWhiteSpace(entityId))
+        if (string.IsNullOrWhiteSpace(entityId))
         {
-            return;
+            throw new InvalidOperationException("Entity knowledge action requires a non-empty entity id.");
         }
 
         if (locationState.Entities.TryGetValue(entityId, out var entity))
         {
             entity.KnowledgeState = knowledgeState;
+            return;
         }
+
+        throw new InvalidOperationException($"Entity '{entityId}' is missing from the current location state.");
     }
 
     private static void ResolveEntity(string entityId, LocationRuntimeState locationState)
     {
-        if (locationState == null || string.IsNullOrWhiteSpace(entityId))
+        if (string.IsNullOrWhiteSpace(entityId))
         {
-            return;
+            throw new InvalidOperationException("Resolve entity action requires a non-empty entity id.");
         }
 
         if (locationState.Entities.TryGetValue(entityId, out var entity))
         {
             entity.KnowledgeState = KnowledgeState.Resolved;
             entity.IsConsumed = true;
+            return;
         }
+
+        throw new InvalidOperationException($"Entity '{entityId}' is missing from the current location state.");
     }
 
     private static void MoveToLocation(string locationId, string nodeId, WorldRuntimeState worldState)
     {
-        if (!string.IsNullOrWhiteSpace(locationId))
+        if (string.IsNullOrWhiteSpace(locationId))
         {
-            worldState.CurrentLocationId = locationId;
+            throw new InvalidOperationException("Move-to-location action requires a target location id.");
         }
+
+        worldState.CurrentLocationId = locationId;
 
         MoveToNode(nodeId, worldState);
     }
 
     private static void MoveToNode(string nodeId, WorldRuntimeState worldState)
     {
-        if (!string.IsNullOrWhiteSpace(nodeId))
+        if (string.IsNullOrWhiteSpace(nodeId))
         {
-            worldState.CurrentNodeId = nodeId;
+            throw new InvalidOperationException("Move-to-node action requires a target node id.");
         }
+
+        worldState.CurrentNodeId = nodeId;
     }
 }
 }

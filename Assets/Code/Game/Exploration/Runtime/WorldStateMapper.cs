@@ -11,10 +11,25 @@ public static class WorldStateMapper
     public static WorldRuntimeState ToRuntime(
         WorldStateSave save,
         WorldConfigPage worldConfig,
-        LocationsConfigPage locationsConfig)
+        IReadOnlyDictionary<string, LocationConfig> locationLookup)
     {
-        var currentLocationId = ResolveCurrentLocationId(save, worldConfig, locationsConfig);
-        var currentNodeId = ResolveCurrentNodeId(save, worldConfig, locationsConfig, currentLocationId);
+        if (worldConfig == null)
+        {
+            throw new ArgumentNullException(nameof(worldConfig));
+        }
+
+        if (locationLookup == null)
+        {
+            throw new ArgumentNullException(nameof(locationLookup));
+        }
+
+        if (locationLookup.Count == 0)
+        {
+            throw new InvalidOperationException("Exploration locations are not configured.");
+        }
+
+        var currentLocationId = ResolveCurrentLocationId(save, worldConfig, locationLookup);
+        var currentNodeId = ResolveCurrentNodeId(save, worldConfig, locationLookup, currentLocationId);
         var currentTimeUnits = ResolveCurrentTimeUnits(save, worldConfig);
 
         var worldState = new WorldRuntimeState(currentLocationId, currentNodeId, currentTimeUnits)
@@ -23,7 +38,6 @@ public static class WorldStateMapper
             };
         ApplyFlags(save.WorldFlags, worldState.Flags);
 
-        var locationLookup = BuildLocationLookup(locationsConfig);
         foreach (var pair in locationLookup)
         {
             var locationConfig = pair.Value;
@@ -31,10 +45,15 @@ public static class WorldStateMapper
             worldState.Locations[locationState.LocationId] = locationState;
         }
 
-        if (!string.IsNullOrWhiteSpace(currentLocationId) &&
-            !worldState.Locations.ContainsKey(currentLocationId))
+        if (!worldState.Locations.TryGetValue(currentLocationId, out var currentLocationState))
         {
-            worldState.Locations[currentLocationId] = new LocationRuntimeState(currentLocationId);
+            throw new InvalidOperationException($"Runtime state for location '{currentLocationId}' is missing.");
+        }
+
+        if (!currentLocationState.Nodes.ContainsKey(currentNodeId))
+        {
+            throw new InvalidOperationException(
+                $"Runtime state for location '{currentLocationId}' does not contain node '{currentNodeId}'.");
         }
 
         return worldState;
@@ -42,6 +61,11 @@ public static class WorldStateMapper
 
     public static WorldStateSave ToSave(WorldRuntimeState runtime)
     {
+        if (runtime == null)
+        {
+            throw new ArgumentNullException(nameof(runtime));
+        }
+
         var locations = new List<LocationStateSave>();
         foreach (var locationPair in runtime.Locations)
         {
@@ -71,55 +95,51 @@ public static class WorldStateMapper
     private static string ResolveCurrentLocationId(
         WorldStateSave save,
         WorldConfigPage worldConfig,
-        LocationsConfigPage locationsConfig)
+        IReadOnlyDictionary<string, LocationConfig> locationLookup)
     {
         if (!string.IsNullOrWhiteSpace(save.CurrentLocationId))
         {
+            EnsureLocationExists(save.CurrentLocationId, locationLookup);
             return save.CurrentLocationId;
         }
 
-        if (worldConfig != null && !string.IsNullOrWhiteSpace(worldConfig.DefaultStartLocationId))
+        if (!string.IsNullOrWhiteSpace(worldConfig.DefaultStartLocationId))
         {
+            EnsureLocationExists(worldConfig.DefaultStartLocationId, locationLookup);
             return worldConfig.DefaultStartLocationId;
         }
 
-        var locations = locationsConfig?.Locations;
-        if (locations != null && locations.Length > 0 && locations[0] != null)
-        {
-            return locations[0].Id;
-        }
-
-        return string.Empty;
+        throw new InvalidOperationException("WorldConfigPage.DefaultStartLocationId must be configured.");
     }
 
     private static string ResolveCurrentNodeId(
         WorldStateSave save,
         WorldConfigPage worldConfig,
-        LocationsConfigPage locationsConfig,
+        IReadOnlyDictionary<string, LocationConfig> locationLookup,
         string locationId)
     {
+        EnsureLocationExists(locationId, locationLookup);
+        var location = locationLookup[locationId];
+
         if (!string.IsNullOrWhiteSpace(save.CurrentNodeId))
         {
+            EnsureLocationHasNode(location, save.CurrentNodeId);
             return save.CurrentNodeId;
         }
 
-        if (worldConfig != null && !string.IsNullOrWhiteSpace(worldConfig.DefaultStartNodeId))
+        if (!string.IsNullOrWhiteSpace(worldConfig.DefaultStartNodeId))
         {
+            EnsureLocationHasNode(location, worldConfig.DefaultStartNodeId);
             return worldConfig.DefaultStartNodeId;
         }
 
-        if (string.IsNullOrWhiteSpace(locationId))
+        if (!string.IsNullOrWhiteSpace(location.DefaultNodeId))
         {
-            return string.Empty;
-        }
-
-        var location = locationsConfig?.FindLocation(locationId);
-        if (location != null && !string.IsNullOrWhiteSpace(location.DefaultNodeId))
-        {
+            EnsureLocationHasNode(location, location.DefaultNodeId);
             return location.DefaultNodeId;
         }
 
-        return string.Empty;
+        throw new InvalidOperationException($"Location '{locationId}' does not define a default node id.");
     }
 
     private static int ResolveCurrentTimeUnits(WorldStateSave save, WorldConfigPage worldConfig)
@@ -129,30 +149,44 @@ public static class WorldStateMapper
             return save.CurrentTimeUnits;
         }
 
-        return worldConfig != null ? worldConfig.StartTimeUnits : 0;
+        return worldConfig.StartTimeUnits;
     }
 
-    private static Dictionary<string, LocationConfig> BuildLocationLookup(LocationsConfigPage locationsConfig)
+    private static void EnsureLocationExists(string locationId, IReadOnlyDictionary<string, LocationConfig> locationLookup)
     {
-        var lookup = new Dictionary<string, LocationConfig>(StringComparer.Ordinal);
-        var locations = locationsConfig?.Locations;
-        if (locations == null)
+        if (string.IsNullOrWhiteSpace(locationId))
         {
-            return lookup;
+            throw new InvalidOperationException("Location id must not be empty.");
         }
 
-        for (var i = 0; i < locations.Length; i++)
+        if (!locationLookup.ContainsKey(locationId))
         {
-            var location = locations[i];
-            if (location == null || string.IsNullOrWhiteSpace(location.Id))
+            throw new InvalidOperationException($"Location '{locationId}' is missing from the exploration config.");
+        }
+    }
+
+    private static void EnsureLocationHasNode(LocationConfig location, string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(nodeId))
+        {
+            throw new InvalidOperationException($"Location '{location.Id}' requires a non-empty node id.");
+        }
+
+        var nodes = location.Nodes;
+        if (nodes == null || nodes.Length == 0)
+        {
+            throw new InvalidOperationException($"Location '{location.Id}' does not contain any nodes.");
+        }
+
+        for (var i = 0; i < nodes.Length; i++)
+        {
+            if (string.Equals(nodes[i].Id, nodeId, StringComparison.Ordinal))
             {
-                continue;
+                return;
             }
-
-            lookup[location.Id] = location;
         }
 
-        return lookup;
+        throw new InvalidOperationException($"Location '{location.Id}' does not contain node '{nodeId}'.");
     }
 
     private static LocationRuntimeState BuildLocationState(LocationConfig config, WorldStateSave save)

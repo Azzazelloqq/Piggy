@@ -1,0 +1,6 @@
+{
+  "name": "GameFlow.Abstractions",
+  "references": [
+    "UniTask"
+  ]
+}

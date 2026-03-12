@@ -6,6 +6,7 @@
     "GameSaves",
     "Piggy.StateMachine",
     "UIContext",
-    "UniTask"
+    "UniTask",
+      "Disposable"
   ]
 }

@@ -1,0 +1,7 @@
+{
+  "name": "Gameplay.Scenes.Farmyard",
+  "references": [
+      "GUID:d1c2b3a4e5f60718293a4b5c6d7e8f90",
+      "GUID:f3a29d15daa5e9345ab71de7276cd04b"
+  ]
+}

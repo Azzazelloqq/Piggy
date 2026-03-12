@@ -15,6 +15,7 @@ MonoBehaviour:
   _id: location_farmyard
   _displayName: Farmyard
   _defaultNodeId: node_yard
+  _prefabAddress: FarmyardLocation
   _nodes:
   - _id: node_yard
     _displayName: Yard

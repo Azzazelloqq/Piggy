@@ -14,7 +14,7 @@ public sealed class EventResolver
 
     public EventResolver(ConditionEvaluator conditionEvaluator)
     {
-        _conditionEvaluator = conditionEvaluator;
+        _conditionEvaluator = conditionEvaluator ?? throw new ArgumentNullException(nameof(conditionEvaluator));
     }
 
     public bool TryResolve(
@@ -26,6 +26,16 @@ public sealed class EventResolver
         string entityId,
         out EventConfig resolved)
     {
+        if (worldState == null)
+        {
+            throw new ArgumentNullException(nameof(worldState));
+        }
+
+        if (locationState == null)
+        {
+            throw new ArgumentNullException(nameof(locationState));
+        }
+
         resolved = default;
         if (events == null || events.Length == 0)
         {
@@ -64,9 +74,19 @@ public sealed class EventResolver
 
     public void MarkTriggered(EventConfig eventConfig, WorldRuntimeState worldState, LocationRuntimeState locationState)
     {
-        if (locationState == null || worldState == null || string.IsNullOrWhiteSpace(eventConfig.Id))
+        if (worldState == null)
         {
-            return;
+            throw new ArgumentNullException(nameof(worldState));
+        }
+
+        if (locationState == null)
+        {
+            throw new ArgumentNullException(nameof(locationState));
+        }
+
+        if (string.IsNullOrWhiteSpace(eventConfig.Id))
+        {
+            throw new InvalidOperationException("Event config must have a non-empty id.");
         }
 
         if (!locationState.Events.TryGetValue(eventConfig.Id, out var state))
@@ -87,6 +107,11 @@ public sealed class EventResolver
         string nodeId,
         string entityId)
     {
+        if (string.IsNullOrWhiteSpace(eventConfig.Id))
+        {
+            throw new InvalidOperationException("Event config must have a non-empty id.");
+        }
+
         if (eventConfig.Trigger != triggerType)
         {
             return false;
@@ -104,13 +129,12 @@ public sealed class EventResolver
             return false;
         }
 
-        if (_conditionEvaluator != null &&
-            !_conditionEvaluator.AreMet(eventConfig.Conditions, worldState, locationState))
+        if (!_conditionEvaluator.AreMet(eventConfig.Conditions, worldState, locationState))
         {
             return false;
         }
 
-        if (locationState != null && locationState.Events.TryGetValue(eventConfig.Id, out var state))
+        if (locationState.Events.TryGetValue(eventConfig.Id, out var state))
         {
             if (!eventConfig.IsRepeatable && state.TriggerCount > 0)
             {
@@ -119,7 +143,6 @@ public sealed class EventResolver
 
             if (eventConfig.CooldownTimeUnits > 0 &&
                 state.LastTriggeredTimeUnits >= 0 &&
-                worldState != null &&
                 worldState.CurrentTimeUnits - state.LastTriggeredTimeUnits < eventConfig.CooldownTimeUnits)
             {
                 return false;

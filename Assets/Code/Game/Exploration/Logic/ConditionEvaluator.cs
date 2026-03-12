@@ -1,3 +1,4 @@
+using System;
 using Code.Config.Pages.Exploration;
 using Code.Game.Exploration.Domain;
 using Code.Game.Exploration.Runtime;
@@ -11,6 +12,16 @@ public sealed class ConditionEvaluator
         WorldRuntimeState worldState,
         LocationRuntimeState locationState)
     {
+        if (worldState == null)
+        {
+            throw new ArgumentNullException(nameof(worldState));
+        }
+
+        if (locationState == null)
+        {
+            throw new ArgumentNullException(nameof(locationState));
+        }
+
         if (conditions == null || conditions.Length == 0)
         {
             return true;
@@ -32,11 +43,21 @@ public sealed class ConditionEvaluator
         WorldRuntimeState worldState,
         LocationRuntimeState locationState)
     {
+        if (worldState == null)
+        {
+            throw new ArgumentNullException(nameof(worldState));
+        }
+
+        if (locationState == null)
+        {
+            throw new ArgumentNullException(nameof(locationState));
+        }
+
         var met = condition.Type switch
         {
             ConditionType.HasFlag => ResolveFlag(condition, worldState, locationState),
             ConditionType.TimeRange => ResolveTimeRange(condition, worldState),
-            ConditionType.KnowledgeState => ResolveKnowledgeState(condition, locationState),
+            ConditionType.EntityKnowledgeState => ResolveKnowledgeState(condition, locationState),
             _ => false
         };
 
@@ -50,15 +71,15 @@ public sealed class ConditionEvaluator
     {
         if (string.IsNullOrWhiteSpace(condition.FlagId))
         {
-            return false;
+            throw new InvalidOperationException("Flag condition requires a non-empty flag id.");
         }
 
-        if (locationState != null && locationState.LocalFlags.TryGetValue(condition.FlagId, out var localValue))
+        if (locationState.LocalFlags.TryGetValue(condition.FlagId, out var localValue))
         {
             return localValue == condition.FlagValue;
         }
 
-        if (worldState != null && worldState.Flags.TryGetValue(condition.FlagId, out var worldValue))
+        if (worldState.Flags.TryGetValue(condition.FlagId, out var worldValue))
         {
             return worldValue == condition.FlagValue;
         }
@@ -68,11 +89,6 @@ public sealed class ConditionEvaluator
 
     private static bool ResolveTimeRange(ConditionConfig condition, WorldRuntimeState worldState)
     {
-        if (worldState == null)
-        {
-            return false;
-        }
-
         var time = worldState.CurrentTimeUnits;
         if (condition.MinTimeUnits > 0 && time < condition.MinTimeUnits)
         {
@@ -91,14 +107,14 @@ public sealed class ConditionEvaluator
         ConditionConfig condition,
         LocationRuntimeState locationState)
     {
-        if (locationState == null || string.IsNullOrWhiteSpace(condition.EntityId))
+        if (string.IsNullOrWhiteSpace(condition.EntityId))
         {
-            return false;
+            throw new InvalidOperationException("Knowledge-state condition requires a non-empty entity id.");
         }
 
         if (!locationState.Entities.TryGetValue(condition.EntityId, out var entityState))
         {
-            return false;
+            throw new InvalidOperationException($"Entity '{condition.EntityId}' is missing from the current location state.");
         }
 
         return entityState.KnowledgeState == condition.KnowledgeState;

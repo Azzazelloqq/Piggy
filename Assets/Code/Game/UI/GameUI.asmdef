@@ -19,6 +19,6 @@
         "GUID:8ad73dffd5f14a52a088674e60cfe3ea",
         "GUID:144e9e15a6d6473a96cc570c4bb0edf7",
         "GUID:1d9516e6f01b24c47a72364509e55a7c",
-        "GameExploration"
+        "GameFlow.Abstractions"
     ]
 }

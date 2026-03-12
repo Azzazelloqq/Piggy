@@ -48,7 +48,7 @@ namespace Code.Game.Exploration.Domain
     {
         HasFlag = 0,
         TimeRange = 1,
-        KnowledgeState = 2
+        EntityKnowledgeState = 2
     }
 
     public enum ActionType

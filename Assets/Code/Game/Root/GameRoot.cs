@@ -52,6 +52,8 @@ public class GameRoot : MonoBehaviourDisposable
     private ISaveStore _saveStore;
     private IConfig _config;
     private IGameFlowService _gameFlowService;
+    private IResourceLoader _resourceLoader;
+    private Transform _gameplayRoot;
 
 
     // ReSharper disable once AsyncVoidMethod
@@ -59,8 +61,8 @@ public class GameRoot : MonoBehaviourDisposable
     {
         _gameDiContainer = DiContainerFactory.CreateGlobalContainer();
         
-        var resourceLoader = new AddressableResourceLoader();
-        _gameDiContainer.RegisterAsSingleton<IResourceLoader>(resourceLoader);
+        _resourceLoader = new AddressableResourceLoader();
+        _gameDiContainer.RegisterAsSingleton<IResourceLoader>(_resourceLoader);
 
         _inGameLogger = new UnityInGameLogger();
         _gameDiContainer.RegisterAsSingleton<IInGameLogger>(_inGameLogger);
@@ -69,14 +71,17 @@ public class GameRoot : MonoBehaviourDisposable
         
         InitializeLocalization();
         InitializeSaveSystem();
+        InitializeGameplayRoots();
 
         _gameFlowService = new GameFlowService(
             _stateMachine,
             _saveStore,
             _config,
+            _resourceLoader,
             _rootContext.UIContext,
-            _inGameLogger);
-        _gameDiContainer.RegisterAsSingleton<IGameFlowService>(_gameFlowService);
+            _gameplayRoot);
+        
+        _gameDiContainer.RegisterAsSingleton(_gameFlowService);
 
         var dispatcherObject = new GameObject();
         var unityDispatcherBehaviour = dispatcherObject.AddComponent<UnityDispatcherBehaviour>();
@@ -157,6 +162,17 @@ public class GameRoot : MonoBehaviourDisposable
 
         ILocalizationProvider localizationProvider = LocalizationRuntime.Service;
         _gameDiContainer.RegisterAsSingleton(localizationProvider);
+    }
+
+    private void InitializeGameplayRoots()
+    {
+        _gameplayRoot = _rootContext.GameplayRoot;
+        if (_gameplayRoot == null)
+        {
+            var gameplayRootObject = new GameObject("[GameplayRoot]");
+            gameplayRootObject.transform.SetParent(transform, false);
+            _gameplayRoot = gameplayRootObject.transform;
+        }
     }
 
     private async UniTask InitializeConfig(CancellationToken token)

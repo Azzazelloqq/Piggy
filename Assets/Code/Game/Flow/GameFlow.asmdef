@@ -1,0 +1,20 @@
+{
+  "name": "GameFlow",
+  "references": [
+      "GUID:a4b5c6d7e8f90123456789abcdeff012",
+      "GUID:227d34d54ce64f22b93973a344e946a0",
+      "GUID:d1c2b3a4e5f60718293a4b5c6d7e8f90",
+      "GUID:175c52130e284e01a573026ed12e1b13",
+      "GUID:82cc87033bf944c382a273ab2d682a2b",
+      "GUID:4d6d18948e5cdd145be231a15bcd4780",
+      "GUID:d3b716c68dab4357be2228cfb96275c4", 
+      "GUID:c603b98b1af44451a86519fe0e474cb3", 
+      "GUID:f51ebe6a0ceec4240a699833d6309b23",
+      "GUID:1d9516e6f01b24c47a72364509e55a7c",
+      "GUID:a649dfdd7ec849148a9a050cb8705d74",
+      "GUID:c164f627256544647be795722936f145",
+      "GUID:e03d2d67472051a4e8982e8a5bebc561",
+      "GUID:f3a29d15daa5e9345ab71de7276cd04b"
+      
+  ]
+}

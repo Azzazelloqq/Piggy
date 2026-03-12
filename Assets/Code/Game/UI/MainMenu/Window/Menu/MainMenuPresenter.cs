@@ -85,7 +85,7 @@ public sealed class MainMenuPresenter : MainMenuPresenterBase
             exitPanel,
             savesPanel,
             characterCreationPanel);
-        var transitionAnimator = new MainMenuEdgeSlideTransitionAnimator();
+        var transitionAnimator = new MainMenuPaperTransitionAnimator();
         _transitionPresenter = new MainMenuScreenTransitionPresenter(
             transitionView,
             new MainMenuScreenTransitionModel(),

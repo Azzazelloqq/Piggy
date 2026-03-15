@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 1000000004}
   - component: {fileID: 1000000005}
   - component: {fileID: 1000000006}
+  - component: {fileID: 5354082793366467632}
+  - component: {fileID: 2272383165685674071}
   m_Layer: 5
   m_Name: GameProfilesSlotView
   m_TagString: Untagged
@@ -124,7 +126,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -161,6 +163,36 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &5354082793366467632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20c698593ad39d646b62f5babaad9b3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameUI::Code.UI.Animations.UIWindowAnimator
+  duration: 0.3
+  startScale: 0.9
+  easeType: 27
+--- !u!114 &2272383165685674071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e1e393616a41044bb44c23d191e1b97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameUI::Code.UI.Animations.UIButtonAnimator
+  hoverScale: 1.05
+  clickScale: 0.95
+  duration: 0.2
 --- !u!1 &1000000010
 GameObject:
   m_ObjectHideFlags: 0
@@ -1009,6 +1041,7 @@ GameObject:
   - component: {fileID: 1000000092}
   - component: {fileID: 1000000093}
   - component: {fileID: 1000000094}
+  - component: {fileID: 4467892183427061120}
   m_Layer: 5
   m_Name: DeleteButton
   m_TagString: Untagged
@@ -1093,7 +1126,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -1118,6 +1151,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4467892183427061120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000000090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e1e393616a41044bb44c23d191e1b97, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameUI::Code.UI.Animations.UIButtonAnimator
+  hoverScale: 1.05
+  clickScale: 0.95
+  duration: 0.2
 --- !u!1 &1000000100
 GameObject:
   m_ObjectHideFlags: 0

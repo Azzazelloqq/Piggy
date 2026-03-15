@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 8237835404570469263}
   - component: {fileID: 1954046880203328105}
   - component: {fileID: 4580808718093357668}
+  - component: {fileID: 8312962692213642188}
   m_Layer: 5
   m_Name: LoadingWindowView
   m_TagString: Untagged
@@ -91,6 +92,9 @@ MonoBehaviour:
   _disableGameObjectOnHide: 1
   _progressBar: {fileID: 9039906333887167456}
   _fadeDuration: 0.5
+  _fadeInEase: 9
+  _fadeOutEase: 8
+  _useUnscaledTime: 1
 --- !u!225 &4580808718093357668
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -103,6 +107,21 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &8312962692213642188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360312119002656023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20c698593ad39d646b62f5babaad9b3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameUI::Code.UI.Animations.UIWindowAnimator
+  duration: 0.3
+  startScale: 0.9
+  easeType: 27
 --- !u!1 &2045043397407404334
 GameObject:
   m_ObjectHideFlags: 0

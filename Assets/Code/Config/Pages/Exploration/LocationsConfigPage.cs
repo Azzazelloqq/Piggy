@@ -78,9 +78,61 @@ public sealed class LocationsConfigPage : ScriptableObject, IConfigPage
             {
                 throw new InvalidOperationException($"Duplicate location id '{location.Id}' found in {nameof(LocationsConfigPage)}.");
             }
+
+            ValidateTimeRules(location);
         }
 
         return lookup;
+    }
+
+    private static void ValidateTimeRules(LocationConfig location)
+    {
+        if (location == null)
+        {
+            return;
+        }
+
+        var entities = location.Entities;
+        if (entities == null)
+        {
+            return;
+        }
+
+        for (var i = 0; i < entities.Length; i++)
+        {
+            var entity = entities[i];
+            ValidateActivityOptions(location.Id, entity.Activity);
+            ValidateTransition(location.Id, entity.Transition);
+        }
+    }
+
+    private static void ValidateActivityOptions(string locationId, ActivityConfig activity)
+    {
+        var options = activity.Options;
+        if (options == null)
+        {
+            return;
+        }
+
+        foreach (var option in options)
+        {
+            if (option.TimeAdvanceMode == Code.Game.Exploration.Domain.TimeAdvanceMode.Flow &&
+                option.TimeFlow.UnitsPerSecond <= 0f)
+            {
+                throw new InvalidOperationException(
+                    $"Location '{locationId}' has activity option '{option.Id}' with Flow time but missing UnitsPerSecond.");
+            }
+        }
+    }
+
+    private static void ValidateTransition(string locationId, TransitionConfig transition)
+    {
+        if (transition.TimeAdvanceMode == Code.Game.Exploration.Domain.TimeAdvanceMode.Flow &&
+            transition.TimeFlow.UnitsPerSecond <= 0f)
+        {
+            throw new InvalidOperationException(
+                $"Location '{locationId}' has a transition with Flow time but missing UnitsPerSecond.");
+        }
     }
 }
 }

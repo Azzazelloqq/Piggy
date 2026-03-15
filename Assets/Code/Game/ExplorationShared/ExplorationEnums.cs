@@ -63,4 +63,11 @@ namespace Code.Game.Exploration.Domain
         MoveToNode = 7,
         ChangeSuspicion = 8
     }
+
+    public enum TimeAdvanceMode
+    {
+        None = 0,
+        Instant = 1,
+        Flow = 2
+    }
 }

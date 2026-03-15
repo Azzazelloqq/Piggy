@@ -171,7 +171,7 @@ public sealed class EventResolver
             }
         }
 
-        return candidates[candidates.Count - 1];
+        return candidates[^1];
     }
 }
 }

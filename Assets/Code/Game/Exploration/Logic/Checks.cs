@@ -6,6 +6,11 @@ namespace Code.Game.Exploration.Logic
 {
 public readonly struct CheckResult
 {
+    public InteractionResult Result { get; }
+    public int Roll { get; }
+    public int Total { get; }
+    public int DC { get; }
+    
     public CheckResult(InteractionResult result, int roll, int total, int dc)
     {
         Result = result;
@@ -13,11 +18,6 @@ public readonly struct CheckResult
         Total = total;
         DC = dc;
     }
-
-    public InteractionResult Result { get; }
-    public int Roll { get; }
-    public int Total { get; }
-    public int DC { get; }
 }
 
 public sealed class D20CheckService

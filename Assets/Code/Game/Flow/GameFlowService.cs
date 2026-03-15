@@ -29,6 +29,7 @@ public sealed class GameFlowService : IGameFlowService
     private readonly UIContext _uiContext;
     private readonly Transform _gameplayRoot;
     private Transform _sceneRoot;
+    private readonly ExplorationTimeTicker _timeTicker;
 
     public GameFlowService(
         IStateMachine stateMachine,
@@ -36,7 +37,8 @@ public sealed class GameFlowService : IGameFlowService
         IConfig config,
         IResourceLoader resourceLoader,
         UIContext uiContext,
-        Transform gameplayRoot)
+        Transform gameplayRoot,
+        ExplorationTimeTicker timeTicker)
     {
         _stateMachine = stateMachine ?? throw new ArgumentNullException(nameof(stateMachine));
         _saveStore = saveStore ?? throw new ArgumentNullException(nameof(saveStore));
@@ -44,6 +46,7 @@ public sealed class GameFlowService : IGameFlowService
         _resourceLoader = resourceLoader ?? throw new ArgumentNullException(nameof(resourceLoader));
         _uiContext = uiContext ?? throw new ArgumentNullException(nameof(uiContext));
         _gameplayRoot = gameplayRoot ?? throw new ArgumentNullException(nameof(gameplayRoot));
+        _timeTicker = timeTicker ?? throw new ArgumentNullException(nameof(timeTicker));
     }
 
     public int ActiveSlotIndex { get; private set; } = -1;
@@ -113,14 +116,23 @@ public sealed class GameFlowService : IGameFlowService
         }
 
         var conditionEvaluator = new ConditionEvaluator();
+        var actionExecutor = new ActionExecutor();
+        var eventResolver = new EventResolver(conditionEvaluator);
         var runtimeServices = new ExplorationRuntimeServices(
-            new ActionExecutor(),
+            actionExecutor,
             conditionEvaluator,
-            new EventResolver(conditionEvaluator),
+            eventResolver,
             new D20CheckService());
         var timeService = new TimeService(worldConfig.TimeUnitMinutes, worldState.CurrentTimeUnits);
+        var timeController = new ExplorationTimeController(worldState, timeService, eventResolver, actionExecutor);
 
-        return new ExplorationSession(worldState, locationLookup, timeService, runtimeServices);
+        return new ExplorationSession(
+            worldState,
+            locationLookup,
+            timeService,
+            runtimeServices,
+            timeController,
+            worldConfig.DefaultFlowUnitsPerSecond);
     }
 
     private void UpdateProfile(int slotIndex, ExplorationSession session)
@@ -263,6 +275,7 @@ public sealed class GameFlowService : IGameFlowService
         public async UniTask ExecuteAsync(ILoadingStepReporter reporter, CancellationToken token)
         {
             var session = _owner.BuildSession(_profile);
+            _owner.BindTimeTicker(session);
             reporter.CompleteStep();
 
             var locationView = await _owner.LoadLocationViewAsync(session, token);
@@ -282,6 +295,16 @@ public sealed class GameFlowService : IGameFlowService
 
             return _result;
         }
+    }
+
+    private void BindTimeTicker(ExplorationSession session)
+    {
+        if (session == null)
+        {
+            return;
+        }
+
+        _timeTicker.Bind(session.TimeController);
     }
 }
 }

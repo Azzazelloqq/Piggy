@@ -6,26 +6,33 @@ namespace Code.Game.Exploration.Runtime
 {
 public sealed class ExplorationSession
 {
-    public ExplorationSession(
-        WorldRuntimeState worldState,
-        IReadOnlyDictionary<string, LocationConfig> locationConfigs,
-        TimeService timeService,
-        ExplorationRuntimeServices runtimeServices)
-    {
-        WorldState = worldState ?? throw new ArgumentNullException(nameof(worldState));
-        _locationConfigs = locationConfigs ?? throw new ArgumentNullException(nameof(locationConfigs));
-        TimeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
-        RuntimeServices = runtimeServices ?? throw new ArgumentNullException(nameof(runtimeServices));
-        RefreshCurrentLocation();
-    }
-
     public WorldRuntimeState WorldState { get; }
     public LocationConfig CurrentLocationConfig { get; private set; }
     public LocationRuntimeState CurrentLocationState { get; private set; }
     public TimeService TimeService { get; }
     public ExplorationRuntimeServices RuntimeServices { get; }
-
+    public ExplorationTimeController TimeController { get; }
+    public float DefaultFlowUnitsPerSecond { get; }
+    
     private readonly IReadOnlyDictionary<string, LocationConfig> _locationConfigs;
+
+    public ExplorationSession(
+        WorldRuntimeState worldState,
+        IReadOnlyDictionary<string, LocationConfig> locationConfigs,
+        TimeService timeService,
+        ExplorationRuntimeServices runtimeServices,
+        ExplorationTimeController timeController,
+        float defaultFlowUnitsPerSecond)
+    {
+        WorldState = worldState ?? throw new ArgumentNullException(nameof(worldState));
+        _locationConfigs = locationConfigs ?? throw new ArgumentNullException(nameof(locationConfigs));
+        TimeService = timeService ?? throw new ArgumentNullException(nameof(timeService));
+        RuntimeServices = runtimeServices ?? throw new ArgumentNullException(nameof(runtimeServices));
+        TimeController = timeController ?? throw new ArgumentNullException(nameof(timeController));
+        DefaultFlowUnitsPerSecond = Math.Max(0.01f, defaultFlowUnitsPerSecond);
+        TimeController.TimeAdvanced = RefreshCurrentLocation;
+        RefreshCurrentLocation();
+    }
 
     public void RefreshCurrentLocation()
     {
@@ -56,13 +63,15 @@ public sealed class ExplorationSession
         }
 
         var nodeExists = false;
-        for (var i = 0; i < nodes.Length; i++)
+        foreach (var node in nodes)
         {
-            if (string.Equals(nodes[i].Id, WorldState.CurrentNodeId, StringComparison.Ordinal))
+            if (!string.Equals(node.Id, WorldState.CurrentNodeId, StringComparison.Ordinal))
             {
-                nodeExists = true;
-                break;
+                continue;
             }
+
+            nodeExists = true;
+            break;
         }
 
         if (!nodeExists)
@@ -73,6 +82,7 @@ public sealed class ExplorationSession
 
         CurrentLocationConfig = currentLocationConfig;
         CurrentLocationState = currentLocationState;
+        TimeController.UpdateLocation(CurrentLocationConfig, CurrentLocationState);
     }
 }
 }

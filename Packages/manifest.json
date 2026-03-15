@@ -9,6 +9,7 @@
     "com.azzazello.mvp": "https://github.com/Azzazelloqq/MVP-pattern.git",
     "com.azzazello.resourceloader": "https://github.com/Azzazelloqq/ResourceLoader.git",
     "com.azzazello.tickhandler": "https://github.com/Azzazelloqq/TickHandler.git",
+    "com.coplaydev.unity-mcp": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.ai.navigation": "2.0.9",

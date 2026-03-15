@@ -18,9 +18,13 @@ public sealed class WorldConfigPage : ScriptableObject, IConfigPage
     [SerializeField]
     private int _startTimeUnits;
 
+    [SerializeField]
+    private float _defaultFlowUnitsPerSecond = 1f;
+
     public string DefaultStartLocationId => _defaultStartLocationId;
     public string DefaultStartNodeId => _defaultStartNodeId;
     public int TimeUnitMinutes => _timeUnitMinutes;
     public int StartTimeUnits => _startTimeUnits;
+    public float DefaultFlowUnitsPerSecond => _defaultFlowUnitsPerSecond;
 }
 }

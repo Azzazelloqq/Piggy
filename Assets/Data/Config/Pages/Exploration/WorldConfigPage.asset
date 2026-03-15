@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5f9b2f4b2d24d4a95b3c7123e5f4b5a, type: 3}
   m_Name: WorldConfigPage
   m_EditorClassIdentifier: GameConfig::Code.Config.Pages.Exploration.WorldConfigPage
-  _defaultStartLocationId: FarmyardLocation
+  _defaultStartLocationId: location_farmyard
   _defaultStartNodeId: node_yard
   _timeUnitMinutes: 10
   _startTimeUnits: 0
+  _defaultFlowUnitsPerSecond: 1
   _gameplayCameraAddress: Content/Exploration/Prefabs/ExplorationCameraRig

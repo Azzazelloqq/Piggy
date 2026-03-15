@@ -5,6 +5,7 @@ using System.Threading;
 using Azzazelloqq.Config;
 using Code.Config;
 using Code.Game.Bootstrap.State;
+using Code.Game.Exploration.Runtime;
 using Code.Game.Exploration.State;
 using Code.Game.Flow;
 using Code.Game.Loading;
@@ -54,6 +55,7 @@ public class GameRoot : MonoBehaviourDisposable
     private IGameFlowService _gameFlowService;
     private IResourceLoader _resourceLoader;
     private Transform _gameplayRoot;
+    private ExplorationTimeTicker _timeTicker;
 
 
     // ReSharper disable once AsyncVoidMethod
@@ -79,7 +81,8 @@ public class GameRoot : MonoBehaviourDisposable
             _config,
             _resourceLoader,
             _rootContext.UIContext,
-            _gameplayRoot);
+            _gameplayRoot,
+            _timeTicker);
         
         _gameDiContainer.RegisterAsSingleton(_gameFlowService);
 
@@ -172,6 +175,12 @@ public class GameRoot : MonoBehaviourDisposable
             var gameplayRootObject = new GameObject("[GameplayRoot]");
             gameplayRootObject.transform.SetParent(transform, false);
             _gameplayRoot = gameplayRootObject.transform;
+        }
+
+        _timeTicker = _gameplayRoot.GetComponent<ExplorationTimeTicker>();
+        if (_timeTicker == null)
+        {
+            _timeTicker = _gameplayRoot.gameObject.AddComponent<ExplorationTimeTicker>();
         }
     }
 

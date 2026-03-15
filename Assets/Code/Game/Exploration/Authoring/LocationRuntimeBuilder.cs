@@ -68,9 +68,8 @@ public static class LocationRuntimeBuilder
         }
 
         var result = new List<string>(node.Connections.Length);
-        for (var i = 0; i < node.Connections.Length; i++)
+        foreach (var connection in node.Connections)
         {
-            var connection = node.Connections[i];
             if (connection == null || string.IsNullOrWhiteSpace(connection.NodeId))
             {
                 continue;

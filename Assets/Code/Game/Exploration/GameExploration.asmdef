@@ -7,6 +7,9 @@
     "Piggy.StateMachine",
     "UIContext",
     "UniTask",
-      "Disposable"
+    "Disposable",
+    "MVP",
+    "Utils",
+    "Unity.InputSystem"
   ]
 }

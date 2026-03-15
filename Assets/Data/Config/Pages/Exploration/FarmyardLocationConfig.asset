@@ -180,6 +180,30 @@ MonoBehaviour:
         _invert: 0
       _actions: []
     _events: []
+  - _id: entity_exit
+    _displayName: Exit
+    _type: 2
+    _nodeId: node_yard
+    _discovery:
+      _initialState: 2
+      _mode: 0
+      _dc: 0
+      _requiredFlagId: 
+    _activity:
+      _id: 
+      _displayName: 
+      _options: []
+    _transition:
+      _targetLocationId: 
+      _targetNodeId: 
+      _timeCost: 0
+      _check:
+        _statId: 
+        _dc: 0
+        _modifier: 0
+      _conditions: []
+      _actions: []
+    _events: []
   _events:
   - _id: event_enter_yard
     _displayName: Entered the yard

@@ -11,7 +11,7 @@ public sealed class ActionExecutor
         ActionConfig[] actions,
         WorldRuntimeState worldState,
         LocationRuntimeState locationState,
-        TimeService timeService)
+        ExplorationTimeController timeController)
     {
         if (worldState == null)
         {
@@ -23,9 +23,9 @@ public sealed class ActionExecutor
             throw new ArgumentNullException(nameof(locationState));
         }
 
-        if (timeService == null)
+        if (timeController == null)
         {
-            throw new ArgumentNullException(nameof(timeService));
+            throw new ArgumentNullException(nameof(timeController));
         }
 
         if (actions == null || actions.Length == 0)
@@ -35,7 +35,7 @@ public sealed class ActionExecutor
 
         foreach (var action in actions)
         {
-            Execute(action, worldState, locationState, timeService);
+            Execute(action, worldState, locationState, timeController);
         }
     }
 
@@ -43,7 +43,7 @@ public sealed class ActionExecutor
         ActionConfig action,
         WorldRuntimeState worldState,
         LocationRuntimeState locationState,
-        TimeService timeService)
+        ExplorationTimeController timeController)
     {
         if (worldState == null)
         {
@@ -55,15 +55,15 @@ public sealed class ActionExecutor
             throw new ArgumentNullException(nameof(locationState));
         }
 
-        if (timeService == null)
+        if (timeController == null)
         {
-            throw new ArgumentNullException(nameof(timeService));
+            throw new ArgumentNullException(nameof(timeController));
         }
 
         switch (action.Type)
         {
             case ActionType.SpendTime:
-                ApplyTime(action.TimeCost, worldState, timeService);
+                ApplyTime(action.TimeCost, timeController);
                 break;
             case ActionType.SetFlag:
                 ApplyFlag(action.FlagId, action.FlagValue, worldState);
@@ -92,15 +92,14 @@ public sealed class ActionExecutor
         }
     }
 
-    private static void ApplyTime(int timeCost, WorldRuntimeState worldState, TimeService timeService)
+    private static void ApplyTime(int timeCost, ExplorationTimeController timeController)
     {
         if (timeCost <= 0)
         {
             return;
         }
 
-        worldState.CurrentTimeUnits += timeCost;
-        timeService.AddUnits(timeCost);
+        timeController.SpendUnits(timeCost);
     }
 
     private static void ApplyFlag(string flagId, bool value, WorldRuntimeState worldState)

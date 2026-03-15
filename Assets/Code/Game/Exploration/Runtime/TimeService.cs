@@ -34,6 +34,7 @@ public sealed class TimeService
         var dayMinutes = totalMinutes % minutesPerDay;
         var hours = dayMinutes / 60;
         var minutes = dayMinutes % 60;
+        
         return $"Day {dayIndex + 1} {hours:00}:{minutes:00}";
     }
 }

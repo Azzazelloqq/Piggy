@@ -106,6 +106,8 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
+    - _BurnStrength: 0.85
+    - _BurnWidth: 0.12
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _ColorMask: 15
@@ -115,20 +117,22 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
-    - _EdgeCutoff: 0
-    - _EdgeNoiseScale: 1
-    - _EdgeNoiseStrength: 0
-    - _EdgeSoftness: 0.0001
+    - _EdgeCutoff: 0.035
+    - _EdgeNoiseScale: 45
+    - _EdgeNoiseStrength: 0.025
+    - _EdgeSoftness: 0.005
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _GrainStrength: 0.06
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _ShadowSoftness: 0.008
+    - _RimWidth: 0.006
+    - _ShadowSoftness: 0.015
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
@@ -140,18 +144,20 @@ Material:
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
     - _Surface: 0
-    - _TearNoiseScale: 7.5
-    - _TearNoiseStrength: 0.0294
+    - _TearNoiseScale: 12
+    - _TearNoiseStrength: 0.08
     - _UseUIAlphaClip: 0
     - _WorkflowMode: 1
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BurnColor: {r: 0.25, g: 0.12, b: 0.05, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.35}
-    - _ShadowOffset: {r: 0.012, g: -0.012, b: 0, a: 0}
+    - _RimColor: {r: 0.9, g: 0.82, b: 0.65, a: 1}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+    - _ShadowOffset: {r: 0.015, g: -0.015, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

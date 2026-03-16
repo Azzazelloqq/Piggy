@@ -8,12 +8,26 @@ Shader "UI/Paper Rough"
         _AgeTex ("Age Texture", 2D) = "white" {}
         _AgeStrength ("Age Strength", Range(0,1)) = 0.5
 
+        [Header(Edge Settings)]
         _EdgeCutoff ("Edge Cutoff", Range(0,0.2)) = 0.02
         _EdgeSoftness ("Edge Softness", Range(0.0001,0.1)) = 0.01
         _EdgeNoiseScale ("Edge Noise Scale", Range(1,256)) = 32
         _EdgeNoiseStrength ("Edge Noise Strength", Range(0,0.1)) = 0.02
         _TearNoiseScale ("Tear Noise Scale", Range(1,128)) = 8
         _TearNoiseStrength ("Tear Noise Strength", Range(0,0.2)) = 0.06
+        
+        [Header(Burn and Rim)]
+        _BurnColor ("Burn Color", Color) = (0.15, 0.08, 0.02, 1)
+        _BurnWidth ("Burn Width", Range(0, 0.5)) = 0.05
+        _BurnStrength ("Burn Strength", Range(0, 1)) = 0.8
+        
+        _RimColor ("Rim Color", Color) = (0.85, 0.75, 0.6, 1)
+        _RimWidth ("Rim Width", Range(0, 0.05)) = 0.005
+        
+        [Header(Details)]
+        _GrainStrength ("Grain Strength", Range(0, 0.5)) = 0.05
+
+        [Header(Shadow)]
         _ShadowColor ("Shadow Color", Color) = (0,0,0,0.35)
         _ShadowOffset ("Shadow Offset (UV)", Vector) = (0.012,-0.012,0,0)
         _ShadowSoftness ("Shadow Softness", Range(0,0.05)) = 0.008
@@ -60,7 +74,7 @@ Shader "UI/Paper Rough"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma target 2.0
+            #pragma target 3.0
 
             #pragma multi_compile __ UNITY_UI_CLIP_RECT
             #pragma multi_compile __ UNITY_UI_ALPHACLIP
@@ -101,6 +115,16 @@ Shader "UI/Paper Rough"
             float _EdgeNoiseStrength;
             float _TearNoiseScale;
             float _TearNoiseStrength;
+            
+            fixed4 _BurnColor;
+            float _BurnWidth;
+            float _BurnStrength;
+            
+            fixed4 _RimColor;
+            float _RimWidth;
+            
+            float _GrainStrength;
+
             fixed4 _ShadowColor;
             float4 _ShadowOffset;
             float _ShadowSoftness;
@@ -122,22 +146,42 @@ Shader "UI/Paper Rough"
                 return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
             }
 
-            float EdgeMask(float2 uv, float aspectRatio)
+            // Fractal Brownian Motion for more organic noise
+            float FBM(float2 p)
             {
-                // Scale UVs by aspect ratio so noise isn't stretched
+                float v = 0.0;
+                float a = 0.5;
+                float2 shift = float2(100.0, 100.0);
+                // Rotate to reduce axial bias
+                float2x2 rot = float2x2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
+                for (int i = 0; i < 4; ++i) {
+                    v += a * ValueNoise(p);
+                    p = mul(rot, p) * 2.0 + shift;
+                    a *= 0.5;
+                }
+                return v;
+            }
+
+            float GetEdgeDistance(float2 uv, float aspectRatio)
+            {
+                // Scale UVs for noise so it doesn't stretch on wide/tall elements
                 float2 noiseUV = float2(uv.x * aspectRatio, uv.y);
                 
-                float edgeNoise = (ValueNoise(noiseUV * _EdgeNoiseScale) - 0.5) * _EdgeNoiseStrength;
-                float tearNoise = ValueNoise(noiseUV * _TearNoiseScale) - 0.5;
+                float edgeNoise = (FBM(noiseUV * _EdgeNoiseScale) - 0.5) * _EdgeNoiseStrength;
+                float tearNoise = FBM(noiseUV * _TearNoiseScale) - 0.5;
                 tearNoise = -abs(tearNoise) * _TearNoiseStrength;
                 
-                // Calculate distance to edge, correcting for aspect ratio
-                // so the cutoff is the same thickness on X and Y axes
+                // Distance to nearest edge, corrected for aspect ratio
                 float distX = min(uv.x, 1.0 - uv.x) * aspectRatio;
                 float distY = min(uv.y, 1.0 - uv.y);
                 float edgeDist = min(distX, distY);
                 
-                return smoothstep(_EdgeCutoff, _EdgeCutoff + _EdgeSoftness, edgeDist + edgeNoise + tearNoise);
+                return edgeDist + edgeNoise + tearNoise;
+            }
+
+            float EdgeMask(float dist)
+            {
+                return smoothstep(_EdgeCutoff, _EdgeCutoff + _EdgeSoftness, dist);
             }
 
             float SampleAlpha(float2 uv, float aspectRatio)
@@ -145,7 +189,8 @@ Shader "UI/Paper Rough"
                 float inX = step(0.0, uv.x) * step(uv.x, 1.0);
                 float inY = step(0.0, uv.y) * step(uv.y, 1.0);
                 float inside = inX * inY;
-                return tex2D(_MainTex, uv).a * EdgeMask(uv, aspectRatio) * inside;
+                float dist = GetEdgeDistance(uv, aspectRatio);
+                return tex2D(_MainTex, uv).a * EdgeMask(dist) * inside;
             }
 
             v2f vert(appdata_t v)
@@ -165,28 +210,43 @@ Shader "UI/Paper Rough"
                 float2 uv = i.texcoord;
                 
                 // Calculate aspect ratio using screen space derivatives
-                // This tells us how much UV changes per pixel, giving us the real physical ratio
                 float2 dx = ddx(uv);
                 float2 dy = ddy(uv);
                 float aspectX = length(dx);
                 float aspectY = length(dy);
                 float aspectRatio = aspectY > 0.0001 ? aspectX / aspectY : 1.0;
-                // Clamp to prevent extreme distortion on very thin elements
                 aspectRatio = clamp(aspectRatio, 0.1, 10.0);
 
                 fixed4 baseSample = (tex2D(_MainTex, uv) + _TextureSampleAdd);
                 float3 baseRgb = baseSample.rgb * i.color.rgb;
                 float baseAlpha = baseSample.a * i.color.a;
 
-                float2 ageUV = TRANSFORM_TEX(uv, _AgeTex);
-                float ageSample = tex2D(_AgeTex, ageUV).r;
-                float ageMod = lerp(1.0, ageSample, _AgeStrength);
-                baseRgb *= ageMod;
-
-                float edgeMask = EdgeMask(uv, aspectRatio);
+                // 1. Distance and Mask
+                float dist = GetEdgeDistance(uv, aspectRatio);
+                float edgeMask = EdgeMask(dist);
                 baseAlpha *= edgeMask;
+
+                // 2. Age Texture (Multiply blend for better dirt)
+                float2 ageUV = TRANSFORM_TEX(uv, _AgeTex);
+                float3 ageSample = tex2D(_AgeTex, ageUV).rgb;
+                float3 agedRgb = baseRgb * ageSample * 2.0; 
+                baseRgb = lerp(baseRgb, agedRgb, _AgeStrength);
+
+                // 3. Grain
+                float grain = (Hash21(uv * 100.0) - 0.5) * _GrainStrength;
+                baseRgb += grain;
+
+                // 4. Burn (Inner Darkening)
+                float burnFactor = 1.0 - smoothstep(_EdgeCutoff, _EdgeCutoff + _BurnWidth, dist);
+                baseRgb = lerp(baseRgb, baseRgb * _BurnColor.rgb, burnFactor * _BurnStrength * _BurnColor.a);
+
+                // 5. Rim (Edge Highlight/Thickness)
+                float rimFactor = 1.0 - smoothstep(_EdgeCutoff, _EdgeCutoff + _RimWidth, dist);
+                baseRgb = lerp(baseRgb, _RimColor.rgb, rimFactor * _RimColor.a);
+
                 baseRgb = saturate(baseRgb);
 
+                // 6. Shadow
                 float2 shadowUV = uv + _ShadowOffset.xy;
                 float shadowAlpha = SampleAlpha(shadowUV, aspectRatio);
                 float2 blur = float2(_ShadowSoftness, _ShadowSoftness);

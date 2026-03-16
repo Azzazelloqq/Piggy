@@ -34,23 +34,29 @@ Material:
     m_Ints: []
     m_Floats:
     - _AgeStrength: 0.6
+    - _BurnStrength: 0.85
+    - _BurnWidth: 0.12
     - _ColorMask: 15
-    - _EdgeCutoff: 0.02
-    - _EdgeNoiseScale: 32
-    - _EdgeNoiseStrength: 0.02
-    - _EdgeSoftness: 0.01
-    - _ShadowSoftness: 0
+    - _EdgeCutoff: 0.035
+    - _EdgeNoiseScale: 45
+    - _EdgeNoiseStrength: 0.025
+    - _EdgeSoftness: 0.005
+    - _GrainStrength: 0.06
+    - _RimWidth: 0.006
+    - _ShadowSoftness: 0.015
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
-    - _TearNoiseScale: 8
-    - _TearNoiseStrength: 0.06
+    - _TearNoiseScale: 12
+    - _TearNoiseStrength: 0.08
     - _UseUIAlphaClip: 0
     m_Colors:
+    - _BurnColor: {r: 0.25, g: 0.12, b: 0.05, a: 1}
     - _Color: {r: 0.9622642, g: 0.7546311, b: 0.48567107, a: 1}
-    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.35}
-    - _ShadowOffset: {r: 0, g: 0, b: 0, a: 0}
+    - _RimColor: {r: 0.9, g: 0.82, b: 0.65, a: 1}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
+    - _ShadowOffset: {r: 0.015, g: -0.015, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

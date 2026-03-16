@@ -122,21 +122,30 @@ Shader "UI/Paper Rough"
                 return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y);
             }
 
-            float EdgeMask(float2 uv)
+            float EdgeMask(float2 uv, float aspectRatio)
             {
-                float edgeNoise = (ValueNoise(uv * _EdgeNoiseScale) - 0.5) * _EdgeNoiseStrength;
-                float tearNoise = ValueNoise(uv * _TearNoiseScale) - 0.5;
+                // Scale UVs by aspect ratio so noise isn't stretched
+                float2 noiseUV = float2(uv.x * aspectRatio, uv.y);
+                
+                float edgeNoise = (ValueNoise(noiseUV * _EdgeNoiseScale) - 0.5) * _EdgeNoiseStrength;
+                float tearNoise = ValueNoise(noiseUV * _TearNoiseScale) - 0.5;
                 tearNoise = -abs(tearNoise) * _TearNoiseStrength;
-                float edgeDist = min(min(uv.x, uv.y), min(1.0 - uv.x, 1.0 - uv.y));
+                
+                // Calculate distance to edge, correcting for aspect ratio
+                // so the cutoff is the same thickness on X and Y axes
+                float distX = min(uv.x, 1.0 - uv.x) * aspectRatio;
+                float distY = min(uv.y, 1.0 - uv.y);
+                float edgeDist = min(distX, distY);
+                
                 return smoothstep(_EdgeCutoff, _EdgeCutoff + _EdgeSoftness, edgeDist + edgeNoise + tearNoise);
             }
 
-            float SampleAlpha(float2 uv)
+            float SampleAlpha(float2 uv, float aspectRatio)
             {
                 float inX = step(0.0, uv.x) * step(uv.x, 1.0);
                 float inY = step(0.0, uv.y) * step(uv.y, 1.0);
                 float inside = inX * inY;
-                return tex2D(_MainTex, uv).a * EdgeMask(uv) * inside;
+                return tex2D(_MainTex, uv).a * EdgeMask(uv, aspectRatio) * inside;
             }
 
             v2f vert(appdata_t v)
@@ -154,6 +163,17 @@ Shader "UI/Paper Rough"
             fixed4 frag(v2f i) : SV_Target
             {
                 float2 uv = i.texcoord;
+                
+                // Calculate aspect ratio using screen space derivatives
+                // This tells us how much UV changes per pixel, giving us the real physical ratio
+                float2 dx = ddx(uv);
+                float2 dy = ddy(uv);
+                float aspectX = length(dx);
+                float aspectY = length(dy);
+                float aspectRatio = aspectY > 0.0001 ? aspectX / aspectY : 1.0;
+                // Clamp to prevent extreme distortion on very thin elements
+                aspectRatio = clamp(aspectRatio, 0.1, 10.0);
+
                 fixed4 baseSample = (tex2D(_MainTex, uv) + _TextureSampleAdd);
                 float3 baseRgb = baseSample.rgb * i.color.rgb;
                 float baseAlpha = baseSample.a * i.color.a;
@@ -163,17 +183,17 @@ Shader "UI/Paper Rough"
                 float ageMod = lerp(1.0, ageSample, _AgeStrength);
                 baseRgb *= ageMod;
 
-                float edgeMask = EdgeMask(uv);
+                float edgeMask = EdgeMask(uv, aspectRatio);
                 baseAlpha *= edgeMask;
                 baseRgb = saturate(baseRgb);
 
                 float2 shadowUV = uv + _ShadowOffset.xy;
-                float shadowAlpha = SampleAlpha(shadowUV);
+                float shadowAlpha = SampleAlpha(shadowUV, aspectRatio);
                 float2 blur = float2(_ShadowSoftness, _ShadowSoftness);
-                shadowAlpha += SampleAlpha(shadowUV + float2(blur.x, 0.0));
-                shadowAlpha += SampleAlpha(shadowUV + float2(-blur.x, 0.0));
-                shadowAlpha += SampleAlpha(shadowUV + float2(0.0, blur.y));
-                shadowAlpha += SampleAlpha(shadowUV + float2(0.0, -blur.y));
+                shadowAlpha += SampleAlpha(shadowUV + float2(blur.x, 0.0), aspectRatio);
+                shadowAlpha += SampleAlpha(shadowUV + float2(-blur.x, 0.0), aspectRatio);
+                shadowAlpha += SampleAlpha(shadowUV + float2(0.0, blur.y), aspectRatio);
+                shadowAlpha += SampleAlpha(shadowUV + float2(0.0, -blur.y), aspectRatio);
                 shadowAlpha *= 0.2;
                 shadowAlpha *= _ShadowColor.a;
 

@@ -141,9 +141,9 @@ public class UIUpgradeTool : EditorWindow
         TextMeshProUGUI[] texts = prefabRoot.GetComponentsInChildren<TextMeshProUGUI>(true);
         foreach (var txt in texts)
         {
-            // You can set default font settings here
-            // For example, adding a soft shadow or outline if material allows
-            // We just ensure alignment and maybe enable rich text
+            // Set ink color
+            txt.color = new Color(0.24f, 0.15f, 0.13f, 1f); // #3E2723
+            
             if (!txt.richText)
             {
                 txt.richText = true;

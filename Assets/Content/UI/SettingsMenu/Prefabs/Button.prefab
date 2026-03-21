@@ -57,7 +57,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: 9244987dbf6df4044bb81d0dd28ca779, type: 2}
+  m_Material: {fileID: 2100000, guid: 4d9b76bf71de4d4c9f8776b12e6ecf91, type: 2}
   m_Color: {r: 0.745283, g: 0.3987107, b: 0.2214756, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}

@@ -197,7 +197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: 6444f4a8dbc50024ca412ec3defa9b22, type: 2}
+  m_Material: {fileID: 2100000, guid: 4d9b76bf71de4d4c9f8776b12e6ecf91, type: 2}
   m_Color: {r: 0.6509434, g: 0.3727181, b: 0.13817197, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -759,7 +759,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: cfd6e68b3715fab42b1f51bae3b03877, type: 2}
+  m_Material: {fileID: 2100000, guid: de648bb5c39340e1b3418a3c84f58631, type: 2}
   m_Color: {r: 0.745283, g: 0.48293632, b: 0.26366144, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -837,7 +837,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: 6444f4a8dbc50024ca412ec3defa9b22, type: 2}
+  m_Material: {fileID: 2100000, guid: 4d9b76bf71de4d4c9f8776b12e6ecf91, type: 2}
   m_Color: {r: 0.6509434, g: 0.3727181, b: 0.13817197, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}

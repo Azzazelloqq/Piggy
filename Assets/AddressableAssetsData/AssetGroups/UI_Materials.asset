@@ -15,28 +15,8 @@ MonoBehaviour:
   m_GroupName: UI_Materials
   m_GUID: cd0a8860a21b0324e8acaf1e31c65acc
   m_SerializeEntries:
-  - m_GUID: 4ee0c27c6f1347a42b3879553fa9e6a7
-    m_Address: MainMenuTitle
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 6444f4a8dbc50024ca412ec3defa9b22
-    m_Address: ExitConfirmButton
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6c2642c351e24fc1b1cc3f32e5b24db9
     m_Address: PaperRoughButtonBackground
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 8fd31b64f2f8a21488e33dac49abe0f3
-    m_Address: MainMenuButton
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 9244987dbf6df4044bb81d0dd28ca779
-    m_Address: SettingsButton
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -45,13 +25,13 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: b52700a001e86fa428c90d3487a6b6cc
-    m_Address: SettingsBackground
+  - m_GUID: de648bb5c39340e1b3418a3c84f58631
+    m_Address: PaperRoughBackground
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: cfd6e68b3715fab42b1f51bae3b03877
-    m_Address: ExitConfirmPopup
+  - m_GUID: 4d9b76bf71de4d4c9f8776b12e6ecf91
+    m_Address: PaperRoughButton
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

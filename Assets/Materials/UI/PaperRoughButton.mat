@@ -34,23 +34,23 @@ Material:
     m_Ints: []
     m_Floats:
     - _AgeStrength: 0.6
-    - _BurnStrength: 0.85
-    - _BurnWidth: 0.12
+    - _BurnStrength: 0.753
+    - _BurnWidth: 0.122
     - _ColorMask: 15
-    - _EdgeCutoff: 0.035
-    - _EdgeNoiseScale: 45
-    - _EdgeNoiseStrength: 0.025
-    - _EdgeSoftness: 0.005
-    - _GrainStrength: 0.06
-    - _RimWidth: 0.006
-    - _ShadowSoftness: 0.015
+    - _EdgeCutoff: 0
+    - _EdgeNoiseScale: 1
+    - _EdgeNoiseStrength: 0
+    - _EdgeSoftness: 0.0052
+    - _GrainStrength: 0.056
+    - _RimWidth: 0.0054
+    - _ShadowSoftness: 0.0132
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
-    - _TearNoiseScale: 12
-    - _TearNoiseStrength: 0.08
+    - _TearNoiseScale: 5.5
+    - _TearNoiseStrength: 0.029
     - _UseUIAlphaClip: 0
     m_Colors:
     - _BurnColor: {r: 0.25, g: 0.12, b: 0.05, a: 1}
